@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -102,8 +103,7 @@ def health() -> HealthResponse:
     )
 
 
-@app.get("/", tags=["System"])
-def root() -> dict[str, str]:
+def _service_metadata() -> dict[str, str]:
     return {
         "name": settings.app_name,
         "version": settings.version,
@@ -114,4 +114,61 @@ def root() -> dict[str, str]:
     }
 
 
+@app.get("/api", tags=["System"])
+def api_root() -> dict[str, str]:
+    return _service_metadata()
+
+
+# "/" only returns JSON when no frontend is bundled; otherwise the SPA owns it.
+if not (settings.static_dir and settings.static_dir.is_dir()):
+
+    @app.get("/", tags=["System"])
+    def root() -> dict[str, str]:
+        return _service_metadata()
+
+
 app.include_router(api_v1_router)
+
+
+# ---------------------------------------------------------------------------
+# Single-origin deployment.
+#
+# When a built frontend is present (docker/allinone.Dockerfile copies it to
+# STATIC_DIR), the same service serves the React app and the API. That gives
+# one shareable URL, removes CORS from the deployment entirely, and keeps the
+# frontend's default empty VITE_API_BASE_URL correct in production.
+#
+# Mounted last so every API route and /health still wins over the SPA.
+# ---------------------------------------------------------------------------
+if settings.static_dir and settings.static_dir.is_dir():
+    from fastapi.staticfiles import StaticFiles
+    from starlette.exceptions import HTTPException as StarletteHTTPException
+
+    # Paths that belong to the service, never to the SPA router. An unknown
+    # path under these must 404 as itself rather than returning index.html,
+    # so a mistyped endpoint is reported as missing instead of silently
+    # answering with HTML.
+    SERVICE_PREFIXES = ("api", "health", "docs", "redoc", "openapi.json")
+
+    class SpaStaticFiles(StaticFiles):
+        """Serve index.html for client-side routes instead of 404."""
+
+        async def get_response(self, path: str, scope):
+            try:
+                return await super().get_response(path, scope)
+            except StarletteHTTPException as exc:
+                if exc.status_code != 404:
+                    raise
+                # StaticFiles normalises the path with os.path.normpath, which
+                # yields backslashes on Windows — split on either separator so
+                # this behaves identically on the dev machine and in the
+                # Linux container.
+                head = re.split(r"[\\/]", path, maxsplit=1)[0].lower()
+                if head in SERVICE_PREFIXES:
+                    raise
+                return await super().get_response("index.html", scope)
+
+    app.mount("/", SpaStaticFiles(directory=str(settings.static_dir), html=True), name="frontend")
+    log.info("Serving bundled frontend from %s", settings.static_dir)
+else:
+    log.info("No bundled frontend found; running as an API-only service.")

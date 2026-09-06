@@ -109,7 +109,7 @@ backend/
     schemas/       Pydantic request/response contracts
     seed/          seed loader
     services/      orchestration, DPR generator, Copilot, IoT
-  tests/           70 tests
+  tests/           75 tests
 database/
   seed/            replaceable CSV/JSON datasets
   migrations/      PostGIS and pgvector migrations
@@ -118,7 +118,7 @@ frontend/src/
   components/      layout, map, shared UI
   pages/           twelve feature pages
 docker/            Dockerfiles and nginx config
-docs/nirman/       architecture, API, demo script, ESP32 guide
+docs/nirman/       architecture, API, demo script, deployment, ESP32 guide
 ```
 
 ## Design rules
@@ -180,13 +180,35 @@ appears in source.
 - [API contract](docs/nirman/api.md) — every endpoint
 - [Demo script](docs/nirman/demo-script.md) — the 19-step walkthrough
 - [ESP32 / IoT](docs/nirman/iot-esp32.md) — message contract and reference sketch
+- [Deployment](docs/nirman/deployment.md) — getting a shareable link with the real backend
 
-## Deployment
+## Deployment — one link, real backend
 
-- **Frontend** — Vercel. Build `npm run build`, output `dist/`, set
-  `VITE_API_BASE_URL` to the backend origin.
-- **Backend** — Render or any free-tier container host, using
-  `docker/backend.Dockerfile`.
-- **Database** — any PostgreSQL 16 + PostGIS service.
-- **Local LLM** stays on the demo machine; do not deploy it to a free tier.
-  Hosted inference is optional — `AI_PROVIDER=mock` keeps everything working.
+The deployment image serves the React frontend **and** the FastAPI API from a
+single origin, so one URL gives you the whole working application:
+
+```
+https://your-app.onrender.com/        → the React app
+https://your-app.onrender.com/api/v1  → the API
+https://your-app.onrender.com/docs    → interactive API docs
+```
+
+Push to GitHub, then on Render choose **New → Blueprint** and select the repo —
+`render.yaml` configures the rest. Free tier, no database add-on required: the
+seed loader rebuilds the database from `database/seed/` on every start, so an
+ephemeral filesystem is an advantage rather than a problem.
+
+Run exactly that configuration locally:
+
+```bash
+cd frontend && npm run build && cd ../backend
+STATIC_FILES_DIR="../frontend/dist" python -m uvicorn app.main:app --port 8000
+```
+
+Full instructions, including the split Vercel + Render option and the move to
+persistent PostgreSQL + PostGIS, are in
+[docs/nirman/deployment.md](docs/nirman/deployment.md).
+
+Do not deploy a self-hosted LLM to a free tier. `AI_PROVIDER=mock` keeps the
+Copilot fully functional, because it only ever explains structured engine
+output.

@@ -1,0 +1,44 @@
+# Render blueprint — one free web service serving the NIRMAN AI frontend and
+# API from a single origin.
+#
+# Deploy: Render dashboard → New → Blueprint → point at this repository.
+#
+# The free instance has an ephemeral filesystem, so the SQLite database is
+# rebuilt from database/seed/ on every start. That is exactly what the seed
+# loader is for, and it means no database add-on is required for the demo.
+# To move to PostgreSQL + PostGIS later, uncomment the `databases` block and
+# the DATABASE_URL entry below.
+
+services:
+  - type: web
+    name: nirman-ai
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./docker/allinone.Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DEMO_MODE
+        value: "true"
+      - key: AUTO_SEED
+        value: "true"
+      # Same-origin deployment: the browser never makes a cross-origin call.
+      - key: CORS_ORIGINS
+        value: ""
+      - key: AI_PROVIDER
+        value: mock
+      - key: ENVIRONMENT
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      # - key: DATABASE_URL
+      #   fromDatabase:
+      #     name: nirman-db
+      #     property: connectionString
+
+# databases:
+#   - name: nirman-db
+#     plan: free
+#     postgresMajorVersion: "16"

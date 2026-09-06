@@ -48,6 +48,10 @@ class Settings(BaseSettings):
     # IoT
     mqtt_broker_url: str | None = None
 
+    # Directory of a built frontend to serve from this service (single-origin
+    # deployment). Empty means API-only; the Vite dev server handles the UI.
+    static_files_dir: str | None = None
+
     disclaimer: str = (
         "NIRMAN AI is a decision-support prototype. Demonstration datasets and "
         "AI-generated estimates require validation against authoritative data, "
@@ -73,6 +77,18 @@ class Settings(BaseSettings):
     @property
     def seed_dir(self) -> Path:
         return SEED_DIR
+
+    @property
+    def static_dir(self) -> Path | None:
+        """Built frontend to serve from this same service, if one is bundled.
+
+        STATIC_DIR is set by the single-origin Docker image. Locally the Vite
+        dev server serves the frontend instead, so this is normally unset.
+        """
+        if self.static_files_dir:
+            return Path(self.static_files_dir)
+        candidate = REPO_ROOT / "frontend" / "dist"
+        return candidate if candidate.is_dir() else None
 
 
 @lru_cache
