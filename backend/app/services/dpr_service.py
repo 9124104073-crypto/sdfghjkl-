@@ -30,7 +30,7 @@ from sqlalchemy.orm import Session
 from app import repositories as repo
 from app.core.constants import DISCLAIMER, DataStatus
 from app.engines import risk as risk_engine
-from app.services import project_service, site_service
+from app.services import persistence_service, project_service, site_service
 
 BRAND = colors.HexColor("#0F766E")
 BRAND_LIGHT = colors.HexColor("#CCFBF1")
@@ -60,6 +60,20 @@ def build_dpr(db: Session, project_id: int, include_explainability: bool = True)
 
     population = repo.population_by_location(db).get(project["area"])
     sources = repo.data_sources(db)
+
+    persistence_service.record_ai_output(
+        db,
+        entity_type="project",
+        entity_id=project_id,
+        recommendation_type="dpr",
+        payload={"project": project["name"], "area": project["area"],
+                 "budget_cr": detail["cost"]["estimate_cr"]},
+        provider="dpr_generator",
+    )
+    persistence_service.audit(
+        db, action="dpr.generate", entity_type="project", entity_id=project_id,
+        detail=project["name"],
+    )
 
     return {
         "generated_on": date.today().isoformat(),

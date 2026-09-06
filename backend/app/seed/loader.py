@@ -21,6 +21,9 @@ from app.core.config import settings
 from app.engines import normalize as nz
 from app.models import (
     DataSource,
+    Document,
+    DocumentChunk,
+    Embedding,
     GovernmentScheme,
     InfrastructureAsset,
     InfrastructureGap,
@@ -117,6 +120,10 @@ def seed_all(db: Session, *, force: bool = False) -> dict[str, int]:
     _seed_infrastructure_gaps(db, sites_by_name)
     _seed_iot(db, projects_by_key, sites_by_name)
     _seed_data_sources(db, root / "data_sources.json")
+    db.commit()
+
+    # The knowledge base is derived from the tables above, so it is built last.
+    _seed_knowledge_base(db)
 
     db.commit()
     result = counts(db)
@@ -126,6 +133,9 @@ def seed_all(db: Session, *, force: bool = False) -> dict[str, int]:
 
 def _truncate(db: Session) -> None:
     for model in (
+        Embedding,
+        DocumentChunk,
+        Document,
         SensorReading,
         SensorDevice,
         SchemeRecommendation,
@@ -652,6 +662,20 @@ def _seed_data_sources(db: Session, path: Path) -> None:
     db.flush()
 
 
+def _seed_knowledge_base(db: Session) -> None:
+    """Build the RAG corpus and embeddings from the seeded tables."""
+    try:
+        from app.services import rag_service
+
+        built = rag_service.build_corpus(db)
+        db.commit()
+        rag_service.embed_corpus(db)
+        log.info("Knowledge base built: %s", built)
+    except Exception as exc:  # retrieval is optional, seeding must not fail
+        db.rollback()
+        log.warning("Could not build the knowledge base: %s", exc)
+
+
 def counts(db: Session) -> dict[str, int]:
     return {
         "sites": db.query(Site).count(),
@@ -668,4 +692,7 @@ def counts(db: Session) -> dict[str, int]:
         "sensor_devices": db.query(SensorDevice).count(),
         "sensor_readings": db.query(SensorReading).count(),
         "data_sources": db.query(DataSource).count(),
+        "documents": db.query(Document).count(),
+        "document_chunks": db.query(DocumentChunk).count(),
+        "embeddings": db.query(Embedding).count(),
     }

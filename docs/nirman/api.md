@@ -120,3 +120,59 @@ curl -X POST http://localhost:8000/api/v1/sites/recommended \
 The application degrades rather than failing when the LLM or MQTT broker is
 unavailable: the Copilot falls back to `MockAIProvider` and the IoT page serves
 stored readings.
+
+---
+
+## Machine learning and explainability
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/ml/providers` | available scoring providers (`mcda` default, `ml` opt-in) |
+| GET | `/ml/model` | model metrics and global SHAP importance |
+| GET | `/ml/sites/{id}/explain` | SHAP explanation for one site |
+| GET | `/ml/sites/ranked` | rank with `?provider=mcda\|ml` |
+
+Returns `503` when the model cannot be fitted. The `/ml/sites/ranked` endpoint
+degrades to MCDA and says so in `notes` rather than failing.
+
+## Geospatial
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/spatial/summary` | extent, centroid, convex-hull area |
+| GET | `/spatial/neighbours` | nearest candidate sites in kilometres |
+| GET | `/spatial/catchments` | buffer analysis and catchment overlap (`?radius_km=`) |
+| GET | `/spatial/coverage-gaps` | localities outside every site catchment |
+
+Distances and areas are computed in EPSG:32644 (UTM 44N), not in degrees.
+
+## Knowledge base
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/knowledge/search` | semantic search (`?q=` , `?top_k=`) |
+| GET | `/knowledge/stats` | corpus size and embedding configuration |
+| POST | `/knowledge/reindex` | rebuild corpus and embeddings |
+
+## History and audit
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/history/site-scores` | persisted scoring runs (`?site_id=`) |
+| GET | `/history/ai-recommendations` | persisted AI and engine outputs |
+| GET | `/history/audit-log` | audit trail |
+
+## IoT
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/iot/mqtt-status` | subscriber state, message and rejection counts |
+
+## Unversioned paths
+
+The build plan documents endpoints without a version (`/api/sites`,
+`/api/risk`, `/api/copilot/query`, `/api/iot/simulate`, …). Those paths all
+work: `/api/{path}` issues a `307` to `/api/v1/{path}`, which preserves the
+method and body so `POST` still works. There is one implementation, not two.
+`/api` itself returns service metadata, and an unknown unversioned path still
+returns a real `404`.

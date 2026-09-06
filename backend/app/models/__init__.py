@@ -1,7 +1,7 @@
 """SQLAlchemy models for NIRMAN AI."""
 
 from app.models.base import SourceMixin, TimestampMixin
-from app.models.documents import Document, DocumentChunk
+from app.models.documents import Document, DocumentChunk, Embedding, Source
 from app.models.iot import SensorDevice, SensorReading
 from app.models.planning import (
     AiRecommendation,
@@ -31,6 +31,7 @@ __all__ = [
     "DataSource",
     "Document",
     "DocumentChunk",
+    "Embedding",
     "GovernmentScheme",
     "InfrastructureAsset",
     "InfrastructureGap",
@@ -47,6 +48,7 @@ __all__ = [
     "SensorReading",
     "Site",
     "SiteScore",
+    "Source",
     "SourceMixin",
     "TimestampMixin",
     "WhatIfParameter",

@@ -27,6 +27,7 @@ from app.engines.weights import (
     DEFAULT_WHAT_IF_WEIGHTS,
     MCDA_WEIGHTS,
 )
+from app.api.v1.advanced import router as advanced_router
 from app.providers.data import lineage, list_providers
 from app.schemas import (
     CopilotRequest,
@@ -63,9 +64,11 @@ def recommended_sites(
     limit: int = Query(default=5, ge=1, le=40),
     zone: str | None = None,
     max_flood_risk: str | None = None,
+    persist: bool = Query(default=True, description="Record the run in site_scores"),
 ) -> dict[str, Any]:
     return site_service.recommend(
-        db, infrastructure_type, None, limit=limit, zone=zone, max_flood_risk=max_flood_risk
+        db, infrastructure_type, None, limit=limit, zone=zone,
+        max_flood_risk=max_flood_risk, persist=persist,
     )
 
 
@@ -548,3 +551,6 @@ for _sub in (
     dashboard_router,
 ):
     router.include_router(_sub)
+
+# ML, geospatial, knowledge-base, history and MQTT routes.
+router.include_router(advanced_router)

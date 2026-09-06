@@ -1,0 +1,5 @@
+# Working data is never committed — only the seed files under database/seed are.
+raw/*
+processed/*
+!.gitignore
+!../README.md

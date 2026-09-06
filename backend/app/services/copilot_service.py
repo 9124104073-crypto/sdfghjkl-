@@ -11,6 +11,7 @@ originates a score, cost, scheme, coordinate, population figure or regulation.
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
 
@@ -21,7 +22,9 @@ from app.core.constants import DataStatus
 from app.engines import demand, priority as priority_engine, risk as risk_engine, schemes as scheme_engine
 from app.engines import whatif as whatif_engine
 from app.providers.ai import get_ai_provider
-from app.services import project_service, site_service
+from app.services import persistence_service, project_service, rag_service, site_service
+
+log = logging.getLogger(__name__)
 
 INTENT_PATTERNS: list[tuple[str, tuple[str, ...]]] = [
     ("why_site", ("why is this site", "why was this site", "why this site", "explain this site", "why recommended")),
@@ -211,6 +214,16 @@ def build_context(
             context["live_sensors"] = [d for d in fleet["devices"] if d["location"] == name]
         context["sources"] = _sources(db, ["chennai_climate_risk", "iot_demo_devices"])
 
+    # Retrieval-augmented grounding: attach the platform's own methodology,
+    # scheme and provenance passages so the provider can cite them. Retrieval
+    # supplements the engine results - it never replaces them.
+    try:
+        passages = rag_service.search(db, question, top_k=3)
+        if passages:
+            context["retrieved"] = [p.as_dict() for p in passages]
+    except Exception as exc:  # retrieval must never break an answer
+        log.warning("RAG retrieval unavailable: %s", exc)
+
     if "sources" not in context or intent == "general":
         sites = repo.all_sites(db)
         projects = project_service.portfolio(db)
@@ -241,10 +254,29 @@ def answer(
     result = provider.explain(question, context)
     payload = result.as_dict()
     payload["data_status"] = DataStatus.AI_GENERATED
+    payload["retrieved"] = context.get("retrieved", [])
     payload["notes"] = [
         "The Copilot explains results produced by the NIRMAN decision engines. It does not "
         "generate scores, costs, schemes, coordinates, population figures or regulations.",
     ]
+    if payload["retrieved"]:
+        payload["notes"].append(
+            f"{len(payload['retrieved'])} supporting passage(s) retrieved from the platform's "
+            "own methodology, scheme reference and data registry."
+        )
+
+    persistence_service.record_ai_output(
+        db,
+        entity_type="copilot",
+        entity_id=payload.get("intent") or "general",
+        recommendation_type="copilot_answer",
+        payload={"question": question, "answer": payload["answer"], "intent": payload.get("intent")},
+        provider=payload.get("provider"),
+    )
+    persistence_service.audit(
+        db, action="copilot.query", entity_type="copilot",
+        entity_id=payload.get("intent"), detail=question[:400],
+    )
     return payload
 
 

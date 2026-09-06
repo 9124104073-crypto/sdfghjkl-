@@ -14,6 +14,7 @@ from app import repositories as repo
 from app.core.constants import DataStatus
 from app.engines import demand, explain, risk as risk_engine
 from app.engines.suitability import Calibration, SuitabilityResult, evaluate_site, rank_sites
+from app.services import persistence_service
 from app.models.spatial import Site
 
 FLOOD_RISK_ORDER = ["Very Low", "Low", "Moderate", "Medium", "High", "Very High"]
@@ -104,6 +105,7 @@ def recommend(
     limit: int = 5,
     zone: str | None = None,
     max_flood_risk: str | None = None,
+    persist: bool = True,
 ) -> dict[str, Any]:
     """Top-N candidate sites for an infrastructure type, with explanations."""
     sites = _filter(repo.all_sites(db), zone, max_flood_risk)
@@ -144,10 +146,25 @@ def recommend(
         ]
         enriched.append(payload)
 
+    # Persist the run so a recommendation can be reviewed after the fact.
+    recorded = 0
+    if persist and enriched:
+        recorded = persistence_service.record_site_scores(
+            db, enriched, infrastructure_type, provider="mcda"
+        )
+        persistence_service.audit(
+            db,
+            action="sites.recommend",
+            entity_type="infrastructure_type",
+            entity_id=infrastructure_type,
+            detail=f"{len(enriched)} of {len(sites)} candidates returned",
+        )
+
     return {
         "infrastructure_type": infrastructure_type,
         "weights": results[0].weights if results else {},
         "candidates_evaluated": len(sites),
+        "scores_recorded": recorded,
         "results": enriched,
         "comparison": explain.explain_comparison(results),
         "data_status": DataStatus.DERIVED,

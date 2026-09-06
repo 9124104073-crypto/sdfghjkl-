@@ -17,6 +17,17 @@ import {
 
 const FLOOD_LEVELS = ["Very Low", "Low", "Moderate", "High", "Very High"];
 
+const METHODS = {
+  mcda: {
+    label: "Deterministic MCDA",
+    hint: "Weighted multi-criteria analysis. The platform's default scorer.",
+  },
+  ml: {
+    label: "Model + SHAP",
+    hint: "Gradient-boosted model explained with SHAP. Illustrative only.",
+  },
+};
+
 export default function Recommendation() {
   const [params, setParams] = useSearchParams();
   const [infrastructureType, setInfrastructureType] = useState("Hospital");
@@ -25,6 +36,7 @@ export default function Recommendation() {
   const [selectedId, setSelectedId] = useState(
     params.get("site") ? Number(params.get("site")) : null
   );
+  const [method, setMethod] = useState("mcda");
 
   const { data: typesEnvelope } = useApi(() => api.infrastructureTypes(), []);
   const types = typesEnvelope?.data || ["Hospital"];
@@ -59,8 +71,17 @@ export default function Recommendation() {
   );
 
   const { data: xai, loading: xaiLoading } = useApi(
-    () => (selected ? api.siteExplain(selected.site_id, infrastructureType) : Promise.resolve(null)),
-    [selected?.site_id, infrastructureType]
+    () =>
+      !selected
+        ? Promise.resolve(null)
+        : method === "ml"
+          ? api.mlExplain(selected.site_id)
+          : api.siteExplain(selected.site_id, infrastructureType),
+    [selected?.site_id, infrastructureType, method]
+  );
+  const { data: model } = useApi(
+    () => (method === "ml" ? api.mlModel() : Promise.resolve(null)),
+    [method]
   );
 
   return (
@@ -74,7 +95,7 @@ export default function Recommendation() {
       </div>
 
       <Card title="Assessment parameters">
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Infrastructure type">
             <select
               value={infrastructureType}
@@ -93,6 +114,15 @@ export default function Recommendation() {
               {[5, 10, 20, 40].map((n) => (
                 <option key={n} value={n}>
                   Top {n}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Explanation method" hint={METHODS[method].hint}>
+            <select value={method} onChange={(e) => setMethod(e.target.value)} className={selectClass}>
+              {Object.entries(METHODS).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v.label}
                 </option>
               ))}
             </select>
@@ -208,7 +238,61 @@ export default function Recommendation() {
                 actions={<DataStatusBadge status="derived" />}
               >
                 {xaiLoading && <p className="text-sm text-slate-500">Computing breakdown...</p>}
-                {xai && (
+                {xai && method === "ml" && (
+                  <>
+                    <div className="mb-3 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-[11px] leading-relaxed text-violet-900">
+                      <b>Model prediction, not the platform's score.</b> A gradient-boosted model
+                      fitted on 40 demonstration rows, explained with SHAP. The deterministic MCDA
+                      engine remains the scorer of record.
+                    </div>
+                    <p className="text-sm leading-relaxed text-slate-700">{xai.why_this_site}</p>
+                    <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                      <div className="rounded-lg bg-slate-50 px-2 py-2">
+                        <p className="text-[10px] uppercase text-slate-500">Base value</p>
+                        <p className="text-sm font-semibold">{xai.base_value}</p>
+                      </div>
+                      <div className="rounded-lg bg-slate-50 px-2 py-2">
+                        <p className="text-[10px] uppercase text-slate-500">SHAP sum</p>
+                        <p className="text-sm font-semibold">
+                          {xai.score_breakdown.net_factor_effect >= 0 ? "+" : ""}
+                          {xai.score_breakdown.net_factor_effect}
+                        </p>
+                      </div>
+                      <div className="rounded-lg bg-violet-50 px-2 py-2">
+                        <p className="text-[10px] uppercase text-violet-700">Prediction</p>
+                        <p className="text-sm font-semibold text-violet-800">{xai.score}</p>
+                      </div>
+                    </div>
+                    <h3 className="mt-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                      SHAP contributions
+                    </h3>
+                    <ul className="mt-1 space-y-1">
+                      {xai.all_factors.slice(0, 8).map((f) => (
+                        <li key={f.factor} className="rounded-md bg-slate-50 px-2.5 py-1.5">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-xs font-medium text-slate-800">{f.label}</span>
+                            <span
+                              className={`text-xs font-semibold tabular-nums ${
+                                f.shap_value >= 0 ? "text-emerald-700" : "text-rose-700"
+                              }`}
+                            >
+                              {f.shap_value >= 0 ? "+" : ""}
+                              {f.shap_value}
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-[10px] text-slate-400">value: {f.value}</p>
+                        </li>
+                      ))}
+                    </ul>
+                    {model && (
+                      <p className="mt-3 text-[11px] text-slate-500">
+                        Model: {model.model.algorithm}, {model.model.training_rows} rows, CV R²{" "}
+                        {model.model.cross_validated_r2}, MAE {model.model.cross_validated_mae}.
+                      </p>
+                    )}
+                  </>
+                )}
+                {xai && method === "mcda" && (
                   <>
                     <p className="text-sm leading-relaxed text-slate-700">{xai.why_this_site}</p>
 

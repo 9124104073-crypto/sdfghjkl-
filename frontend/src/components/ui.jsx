@@ -100,7 +100,7 @@ const TIER_STYLES = {
 };
 
 export function Tag({ value, className = "" }) {
-  if (value === null || value === undefined) return <span className="text-slate-400">-</span>;
+  if (value === null || value === undefined) return <span className="text-slate-400">—</span>;
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ring-inset ${
@@ -213,7 +213,7 @@ export const selectClass =
   "mt-1 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500";
 
 export function fmtNumber(value, digits = 0) {
-  if (value === null || value === undefined) return "-";
+  if (value === null || value === undefined) return "—";
   return Number(value).toLocaleString("en-IN", {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
@@ -221,6 +221,6 @@ export function fmtNumber(value, digits = 0) {
 }
 
 export function fmtCrore(value) {
-  if (value === null || value === undefined) return "-";
+  if (value === null || value === undefined) return "—";
   return `₹${fmtNumber(value, value < 100 ? 1 : 0)} Cr`;
 }

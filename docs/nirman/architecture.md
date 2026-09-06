@@ -173,3 +173,97 @@ bodies, elevation) has coordinates in the **Coimbatore** region, not Chennai. It
 is loaded under `region = "Coimbatore study box (Tamil Nadu)"` so the schema can
 be exercised end to end without contaminating Chennai analytics, and a test
 asserts the two never mix.
+
+---
+
+## Scoring strategies (RecommendationProvider)
+
+The fourth interface from Prompt 1. Site scoring is pluggable behind one
+contract, so callers and the frontend never change when the strategy does.
+
+| Provider | Implementation | Role |
+| --- | --- | --- |
+| `mcda` | `McdaRecommendationProvider` | **Default.** Deterministic weighted MCDA |
+| `ml` | `MlRecommendationProvider` | XGBoost + SHAP, opt-in and illustrative |
+
+`resolve()` degrades to `mcda` when a model cannot serve and returns a note
+saying so, rather than silently swapping strategies. The build plan requires
+that the MVP not depend on a model for core scoring, and this enforces it.
+
+### The model, honestly
+
+`engines/ml.py` fits an `XGBRegressor` (depth 2, 220 trees, strong
+regularisation) on the 40 labelled demonstration sites, learning to reproduce
+the dataset's published AI score from 15 measurable attributes. Cross-validated
+R² is around 0.79 with a mean absolute error near 1.0.
+
+Those numbers describe a model that memorises a small table well. They do not
+mean the platform can predict site suitability in Chennai. Forty rows cannot
+support a generalisable model, the target is itself a demonstration value, and
+every response carries that caveat with `data_status: ai_generated`.
+
+SHAP `TreeExplainer` provides exact additive attributions: base value plus all
+contributions equals the prediction. A test asserts this identity, because an
+explanation that does not reconcile with its prediction is worse than none.
+
+## Geospatial layer
+
+`services/gis_service.py` does the spatial reasoning with GeoPandas and
+Shapely. Storage stays portable — plain latitude/longitude columns, so SQLite
+works — but analysis reprojects to **EPSG:32644 (UTM 44N)** so distances and
+areas are metric. A 5 km catchment is genuinely 5 km, and a buffer's area
+reconciles to π·25 ≈ 78.5 km², which the tests check.
+
+Three analyses that the tabular data alone cannot answer:
+
+- **Nearest neighbours** — how far apart candidate sites actually are.
+- **Catchment overlap** — which sites compete for the same population, which
+  matters when sequencing a programme.
+- **Coverage gaps** — localities present in the risk, priority and population
+  datasets with no candidate site within reach. Nemmeli, at 10.6 km from the
+  nearest assessed site, is the clearest example.
+
+## Retrieval (RAG)
+
+`services/rag_service.py` builds a corpus from what the platform can vouch for:
+its own methodology, the scheme reference table and the data registry. Nothing
+is scraped.
+
+Models are `Source`, `Document`, `DocumentChunk` and `Embedding`. Embeddings
+come from a deterministic TF-IDF + truncated-SVD projection fitted on the corpus
+itself, so retrieval is reproducible and requires no LLM, API key or network.
+On PostgreSQL the vectors are promoted to a `vector(N)` column with an HNSW
+index; on SQLite they are JSON and similarity is computed in Python.
+
+The Copilot attaches the top passages to every answer as citations. Retrieval
+grounds and cites — it never substitutes for the decision engines.
+
+## Persistence and audit
+
+`site_scores`, `ai_recommendations` and `audit_logs` are written by
+`services/persistence_service.py`. Scoring itself stays stateless and
+reproducible; these tables are the record of what the platform actually told
+people, which is what makes a decision-support system reviewable afterwards.
+
+Recording history must never break a read: a failure to persist is logged and
+swallowed, because losing an audit row is not a reason to fail a planner's
+request.
+
+## MQTT ingestion
+
+`services/mqtt_service.py` subscribes to `nirman/sensors/#` and pushes each
+message through the same ingest path as `POST /api/v1/iot/ingest`, so an HTTP
+reading and an MQTT reading are stored and classified identically. Readings
+arriving over MQTT default to `is_demo_data=false` — they are real device data —
+while the simulator always flags its output as demonstration.
+
+The broker is optional. With `MQTT_BROKER_URL` unset, or unreachable, the
+platform runs normally.
+
+## Demo / Verified data mode
+
+The frontend toggle from Prompt 7. Switching to "Verified" does **not** silently
+substitute real figures — no verified source is connected yet. It filters the
+interface to what would survive that connection and states plainly what is
+missing, so a demonstration value can never be mistaken for an official Chennai
+measurement.

@@ -155,10 +155,19 @@ def test_scheme_recommendation_endpoint(client) -> None:
     assert "Awas" in body["primary"]["scheme_name"]
 
 
+def test_simulated_readings_are_flagged_as_demonstration(client) -> None:
+    """Every simulated reading must be labelled, per the build plan."""
+    body = client.post(
+        "/api/v1/iot/simulate", json={"device_id": "NIR-WL-002", "readings": 1, "escalate": 0}
+    ).json()
+    device = body["devices"][0]
+    assert body["data_status"] == "demo"
+    assert device["history"][-1]["quality_status"] in ("NORMAL", "WARNING", "CRITICAL")
+    assert any("is_demo_data=true" in n for n in body["notes"])
+
+
 def test_iot_simulation_escalates_to_warning(client) -> None:
-    before = client.get("/api/v1/iot/devices").json()
-    device = next(d for d in before["devices"] if d["device_id"] == "NIR-WL-001")
-    assert device["is_demo_data"] is True
+    assert client.get("/api/v1/iot/devices").json()["summary"]["total"] == 8
 
     status = None
     for _ in range(6):
@@ -242,3 +251,38 @@ def test_openapi_docs_are_enabled(client) -> None:
     assert client.get("/docs").status_code == 200
     schema = client.get("/openapi.json").json()
     assert schema["info"]["title"] == "NIRMAN AI"
+
+
+# -- build-plan documented paths -----------------------------------------
+
+
+def test_unversioned_paths_from_the_build_plan_resolve(client) -> None:
+    """Prompt 2 documents /api/sites, /api/risk and friends without a version."""
+    for url in (
+        "/api/sites",
+        "/api/sites/1",
+        "/api/sites/recommended",
+        "/api/priority-projects",
+        "/api/what-if/areas",
+        "/api/schemes",
+        "/api/dpr/projects",
+        "/api/risk",
+        "/api/data-sources",
+    ):
+        assert client.get(url).status_code == 200, url
+
+
+def test_unversioned_post_preserves_method_and_body(client) -> None:
+    """A 307 keeps POST a POST, so /api/copilot/query still works."""
+    body = client.post(
+        "/api/copilot/query", json={"question": "Which area is best for a new hospital?"}
+    )
+    assert body.status_code == 200
+    assert body.json()["intent"] == "best_site"
+
+    assert client.post("/api/iot/simulate", json={"readings": 1, "escalate": 0}).status_code == 200
+
+
+def test_unknown_unversioned_path_still_404s(client) -> None:
+    assert client.get("/api/nonsense").status_code == 404
+    assert client.get("/api").status_code == 200

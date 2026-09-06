@@ -83,14 +83,19 @@ Frontend on <http://localhost:8080>, API on <http://localhost:8000>, PostGIS on
 | **AI DPR** | Full Detailed Project Report on screen and as a PDF |
 | **NIRMAN Copilot** | Natural-language answers built strictly from engine output |
 | **IoT Monitoring** | Simulated ESP32 fleet feeding the Risk engine |
+| **Infrastructure Explorer** | Filterable inventory of localities, facilities and spatial analysis |
+| **Knowledge Base** | Semantic search over methodology, schemes and provenance; AI/audit history |
 | **Data & Lineage** | Registry, provenance chain and provider connection status |
 
 ## Stack
 
-React 19 · Vite · Tailwind CSS 4 · Leaflet · Recharts · Axios ·
-FastAPI · Pydantic · SQLAlchemy 2 · ReportLab ·
-PostgreSQL + PostGIS + pgvector (SQLite for local development) ·
-ESP32 + MQTT · Docker
+**Frontend** React 19 · Vite · Tailwind CSS 4 · Leaflet · Recharts · Axios · Vitest
+**Backend** FastAPI · Pydantic · SQLAlchemy 2 · ReportLab
+**Data** Pandas · NumPy
+**ML** scikit-learn · XGBoost · SHAP
+**GIS** GeoPandas · Shapely · PostGIS
+**Storage** PostgreSQL + PostGIS + pgvector (SQLite for local development)
+**IoT** ESP32 · MQTT (paho) · **Deploy** Docker
 
 Everything used is open source or free tier.
 
@@ -101,22 +106,24 @@ backend/
   app/
     api/v1/        REST routers
     core/          config, database, constants, migrations
-    engines/       all scoring, ranking and costing logic
+    engines/       all scoring, ranking and costing logic (incl. ml.py + SHAP)
     models/        SQLAlchemy models
     providers/ai/  MockAIProvider, LocalLLMProvider, HostedLLMProvider
     providers/data/ DemoDataProvider + declared GCC/CMDA/OSM/Bhuvan/IMD/Census
+    providers/recommendation/  MCDA (default) and ML+SHAP scoring strategies
     repositories/  the only place SQL happens
     schemas/       Pydantic request/response contracts
     seed/          seed loader
-    services/      orchestration, DPR generator, Copilot, IoT
-  tests/           75 tests
+    services/      orchestration, DPR, Copilot, IoT, GIS, RAG, MQTT, persistence
+  tests/           106 tests
 database/
   seed/            replaceable CSV/JSON datasets
   migrations/      PostGIS and pgvector migrations
 frontend/src/
   api/             axios client
   components/      layout, map, shared UI
-  pages/           twelve feature pages
+  pages/           fourteen feature pages
+  test/            23 component tests
 docker/            Dockerfiles and nginx config
 docs/nirman/       architecture, API, demo script, deployment, ESP32 guide
 ```
@@ -136,6 +143,49 @@ docs/nirman/       architecture, API, demo script, deployment, ESP32 guide
 9. Demo mode keeps working when the LLM and MQTT are both unavailable.
 10. Cost and risk outputs are planning-level decision support, not statutory or
     engineering approval.
+11. The machine-learned scorer is opt-in and clearly labelled illustrative; the
+    deterministic engine is always the scorer of record.
+
+## Machine learning and explainability
+
+Two scoring strategies sit behind one `RecommendationProvider` interface:
+
+| Provider | What it is | Status |
+| --- | --- | --- |
+| `mcda` | Deterministic weighted multi-criteria analysis | **Default.** Reproducible, needs no training data |
+| `ml` | XGBoost regressor explained with SHAP | Opt-in, illustrative only |
+
+The model learns to reproduce the demonstration dataset's published score from
+measurable site attributes (cross-validated R² ≈ 0.79, MAE ≈ 1.0 on 40 rows).
+**Forty rows cannot support a generalisable model** — it demonstrates the ML and
+SHAP pathway, and every response says so. SHAP contributions are additive: base
+value plus all contributions equals the prediction, which the test suite pins.
+
+An ML failure degrades to MCDA rather than propagating an error, so the MVP
+never depends on a model for core scoring.
+
+## Geospatial analysis
+
+Coordinates are stored as portable latitude/longitude so the project runs on
+SQLite, but the spatial reasoning is done properly with GeoPandas and Shapely in
+a projected CRS (EPSG:32644, UTM 44N) — so a "5 km catchment" is genuinely 5 km:
+
+- nearest-neighbour distances between candidate sites, in kilometres
+- 5 km buffers with catchment-overlap detection (which sites compete for the
+  same population)
+- coverage gaps: localities appearing in the risk, priority and population
+  datasets with no candidate site within reach
+
+## Knowledge base (RAG)
+
+Retrieval runs over what the platform can actually vouch for: its own
+methodology, the scheme reference table and the data registry. Embeddings are a
+deterministic offline TF-IDF projection, so retrieval is reproducible and needs
+no LLM, API key or network. Vectors live in a `vector(N)` column on PostgreSQL
+via pgvector, and as JSON on SQLite.
+
+The Copilot attaches retrieved passages to its answers as citations — retrieval
+supplements the engine results, it never replaces them.
 
 ## Datasets
 

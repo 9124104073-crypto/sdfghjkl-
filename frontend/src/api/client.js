@@ -77,6 +77,29 @@ const api = {
   copilot: (body) => http.post("/api/v1/copilot/query", body).then((r) => r.data),
   copilotSuggestions: () => http.get("/api/v1/copilot/suggestions").then((r) => r.data),
 
+  // machine learning + SHAP
+  mlProviders: () => http.get("/api/v1/ml/providers").then((r) => r.data),
+  mlModel: () => http.get("/api/v1/ml/model").then((r) => r.data),
+  mlExplain: (id) => http.get(`/api/v1/ml/sites/${id}/explain`).then((r) => r.data),
+  mlRanked: (params) => http.get("/api/v1/ml/sites/ranked", { params }).then((r) => r.data),
+
+  // geospatial analysis
+  spatialSummary: () => http.get("/api/v1/spatial/summary").then((r) => r.data),
+  neighbours: (params) => http.get("/api/v1/spatial/neighbours", { params }).then((r) => r.data),
+  catchments: (params) => http.get("/api/v1/spatial/catchments", { params }).then((r) => r.data),
+  coverageGaps: (params) => http.get("/api/v1/spatial/coverage-gaps", { params }).then((r) => r.data),
+
+  // knowledge base (RAG)
+  knowledgeSearch: (params) => http.get("/api/v1/knowledge/search", { params }).then((r) => r.data),
+  knowledgeStats: () => http.get("/api/v1/knowledge/stats").then((r) => r.data),
+
+  // history and audit
+  scoreHistory: (params) => http.get("/api/v1/history/site-scores", { params }).then((r) => r.data),
+  aiHistory: (params) => http.get("/api/v1/history/ai-recommendations", { params }).then((r) => r.data),
+  auditLog: (params) => http.get("/api/v1/history/audit-log", { params }).then((r) => r.data),
+
+  mqttStatus: () => http.get("/api/v1/iot/mqtt-status").then((r) => r.data),
+
   dataSources: () => http.get("/api/v1/data-sources").then((r) => r.data),
   lineage: () => http.get("/api/v1/data-sources/lineage").then((r) => r.data),
   providers: () => http.get("/api/v1/data-sources/providers").then((r) => r.data),

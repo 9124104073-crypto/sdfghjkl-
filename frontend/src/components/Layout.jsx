@@ -1,10 +1,12 @@
 import { NavLink, Outlet } from "react-router-dom";
 import api from "../api/client";
+import { DataModeToggle } from "./DataMode";
 import { useApi } from "./ui";
 
 const NAV = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/map", label: "Infrastructure Map" },
+  { to: "/explorer", label: "Infrastructure Explorer" },
   { to: "/recommendation", label: "Site Recommendation" },
   { to: "/priority", label: "Priority Ranking" },
   { to: "/risk", label: "Risk & Climate" },
@@ -14,6 +16,7 @@ const NAV = [
   { to: "/dpr", label: "AI DPR" },
   { to: "/copilot", label: "NIRMAN Copilot" },
   { to: "/iot", label: "IoT Monitoring" },
+  { to: "/knowledge", label: "Knowledge Base" },
   { to: "/data", label: "Data & Lineage" },
 ];
 
@@ -41,6 +44,7 @@ export default function Layout() {
           </div>
 
           <div className="ml-auto flex items-center gap-3 text-[11px]">
+            <DataModeToggle />
             {health?.demo_mode && (
               <span className="rounded-full bg-amber-50 px-2.5 py-1 font-medium text-amber-800 ring-1 ring-inset ring-amber-200">
                 Demo mode

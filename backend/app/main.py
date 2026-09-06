@@ -8,7 +8,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
+
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.v1.routers import router as api_v1_router
 from app.core.config import settings
@@ -40,7 +42,13 @@ async def lifespan(app: FastAPI):
                     log.info("Seed verification: %s", counts)
                 except Exception as exc:
                     log.error("Seeding failed: %s", exc)
+
+    # Optional MQTT ingestion. Never blocks startup and never raises.
+    from app.services.mqtt_service import ingestor
+
+    ingestor.start()
     yield
+    ingestor.stop()
 
 
 app = FastAPI(
@@ -128,6 +136,30 @@ if not (settings.static_dir and settings.static_dir.is_dir()):
 
 
 app.include_router(api_v1_router)
+
+
+# ---------------------------------------------------------------------------
+# Unversioned path compatibility.
+#
+# The build plan documents endpoints as /api/sites, /api/risk, /api/copilot/query
+# and so on. The implementation is versioned under /api/v1 so the contract can
+# evolve without breaking callers; these redirects keep the documented paths
+# working against the one implementation rather than duplicating it.
+# ---------------------------------------------------------------------------
+@app.api_route(
+    "/api/{path:path}",
+    methods=["GET", "POST"],
+    include_in_schema=False,
+    tags=["System"],
+)
+def unversioned_alias(path: str, request: Request) -> RedirectResponse:
+    if not path or path.split("/", 1)[0] == "v1":
+        raise StarletteHTTPException(status_code=404, detail=f"Unknown API path: /api/{path}")
+    target = f"/api/v1/{path}"
+    if request.url.query:
+        target = f"{target}?{request.url.query}"
+    # 307 preserves the method and body, so POST /api/copilot/query still works.
+    return RedirectResponse(target, status_code=307)
 
 
 # ---------------------------------------------------------------------------
