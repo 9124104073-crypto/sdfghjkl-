@@ -1,0 +1,31 @@
+mcda_code,locality,population_coverage,accessibility,flood_safety,land_suitability,infrastructure_readiness,published_rank
+CHE-01,Guindy,85,95,70,85,90,1
+CHE-02,Anna Nagar,90,90,75,80,85,1
+CHE-04,Alandur,80,90,75,80,80,3
+CHE-05,Nungambakkam,85,85,65,80,85,4
+CHE-03,T. Nagar,95,90,50,75,80,5
+CHE-07,Koyambedu,80,90,65,80,80,6
+CHE-13,Tambaram,80,85,70,80,75,7
+CHE-08,Egmore,85,85,60,75,80,8
+CHE-12,Ambattur,70,80,80,85,80,8
+CHE-10,Mylapore,90,80,60,70,80,10
+CHE-09,Adyar,85,80,55,75,85,11
+CHE-11,Porur,75,80,70,85,75,11
+CHE-15,Royapettah,85,80,60,70,80,13
+CHE-14,Chromepet,75,80,70,80,75,14
+CHE-06,Saidapet,85,85,55,70,75,15
+CHE-25,Poonamallee,65,75,85,80,70,16
+CHE-20,Perambur,85,75,60,70,70,17
+CHE-24,Pallavaram,75,75,70,75,70,18
+CHE-27,Avadi,65,70,80,80,65,19
+CHE-17,Velachery,90,85,30,65,75,20
+CHE-16,Sholinganallur (OMR),70,75,50,80,85,21
+CHE-21,Kolathur,80,70,55,75,70,21
+CHE-26,Triplicane,90,75,50,55,70,21
+CHE-19,Perungudi,75,75,45,75,80,24
+CHE-22,Washermanpet,90,70,50,60,65,24
+CHE-28,Red Hills,55,60,85,85,60,26
+CHE-23,Medavakkam,70,70,50,75,65,27
+CHE-18,Madipakkam,80,70,35,65,65,28
+CHE-29,Ennore,60,60,45,65,60,29
+CHE-30,Manali,55,55,50,60,55,30

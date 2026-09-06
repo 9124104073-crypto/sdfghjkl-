@@ -1,0 +1,41 @@
+site_code,name,zone,latitude,longitude,population_catchment_5km,population_density,existing_hospitals,existing_schools,distance_major_road_km,transit_access,flood_risk,elevation_m,slope_deg,land_use,land_available_acres,utility_infrastructure,water_availability,electricity_availability,internet_availability,land_cost_cr_per_acre,road_score,access_score,infra_score,environment_score,cost_score,dataset_ai_score,dataset_confidence,recommended_infrastructure,dataset_recommendation
+W-001,T. Nagar,Central,13.0418,80.2341,185000,27500,9,18,0.3,Metro + Bus,Low,18,1.2,Commercial,4.2,Excellent,High,High,5G,38,98,99,98,90,70,95.8,97,Government Hospital,Highly Recommended
+W-002,Anna Nagar,West,13.0850,80.2101,172000,21800,8,20,0.4,Metro,Very Low,22,1.0,Residential,5.8,Excellent,High,High,Fiber,34,97,97,96,95,72,94.6,96,Higher Secondary School,Highly Recommended
+W-003,Velachery,South,12.9791,80.2210,168000,20900,7,17,0.5,MRTS + Bus,Moderate,14,1.3,Mixed,6.3,Excellent,High,High,Fiber,31,95,96,95,82,75,92.4,95,Urban Health Centre,Recommended
+W-004,Adyar,South,13.0067,80.2570,145000,18700,8,16,0.4,Bus,Low,16,1.1,Residential,4.8,Excellent,High,High,5G,40,96,95,97,91,66,91.8,95,Multi-speciality Hospital,Recommended
+W-005,Guindy,South,13.0067,80.2206,160000,19500,6,14,0.2,Metro + Rail,Low,24,0.9,Mixed,7.1,Excellent,High,High,Fiber,29,98,98,95,93,78,91.3,94,Fire & Emergency Station,Recommended
+W-006,Perungudi,South,12.9639,80.2426,125000,12300,5,12,0.5,OMR Corridor,Moderate,15,1.5,IT Zone,8.4,Excellent,High,High,Fiber,27,92,94,93,82,80,89.6,93,Primary Health Centre,Recommended
+W-007,Sholinganallur,South,12.9010,80.2279,138000,11900,5,13,0.6,OMR,Low,20,1.7,Mixed,10.2,High,High,High,Fiber,25,93,92,91,89,84,88.8,92,Government School,Recommended
+W-008,Tambaram,South,12.9229,80.1275,158000,10600,7,15,0.4,Rail + Bus,Moderate,28,1.4,Residential,8.1,High,High,High,5G,23,91,93,92,85,86,87.9,91,Community Hospital,Recommended
+W-009,Pallavaram,South,12.9675,80.1500,118000,9800,4,10,0.5,GST Road,Moderate,30,1.8,Residential,9.0,High,High,High,Fiber,22,90,91,90,87,87,86.5,90,Public Health Centre,Recommended
+W-010,Chromepet,South,12.9516,80.1462,132000,11200,5,12,0.6,Rail + GST Road,Low,27,1.5,Mixed,7.5,High,High,High,5G,24,91,90,89,90,85,85.7,90,Government Hospital,Recommended
+W-011,Porur,West,13.0382,80.1565,148000,14800,6,14,0.4,Chennai Bypass + Bus,Low,26,1.4,Mixed,8.3,High,High,High,Fiber,26,93,94,93,88,,89.5,93,Government Hospital,Recommended
+W-012,Valasaravakkam,West,13.0429,80.1755,126000,13900,5,13,0.5,Arcot Road,Low,24,1.5,Residential,7.6,High,High,High,5G,27,91,92,91,90,,87.8,92,Government School,Recommended
+W-013,Ambattur,West,13.1143,80.1548,182000,15600,8,17,0.6,Rail + Bus,Moderate,21,1.6,Industrial + Residential,12.4,Excellent,High,High,Fiber,20,92,93,95,86,,88.9,93,Multi-speciality Hospital,Recommended
+W-014,Avadi,West,13.1147,80.1098,170000,11800,7,15,0.5,Rail + NH,Low,30,1.3,Residential,14.2,High,High,High,Fiber,18,90,91,90,94,,87.2,91,Fire & Rescue Station,Recommended
+W-015,Madhavaram,North,13.1483,80.2314,139000,12600,5,12,0.7,NH-16,Moderate,18,1.8,Mixed,10.6,High,High,High,Fiber,21,90,90,91,89,,85.6,90,Urban Primary Health Centre,Recommended
+W-016,Perambur,North,13.1103,80.2337,158000,18100,7,16,0.3,Rail + Bus,Low,19,1.2,Residential,6.5,Excellent,High,High,5G,29,95,96,94,82,,90.8,94,Government Hospital,Highly Recommended
+W-017,Kolathur,West,13.1215,80.2130,132000,15400,4,11,0.5,Inner Ring Road,Moderate,17,1.7,Residential,8.9,High,High,High,Fiber,24,89,90,89,88,,84.9,89,Higher Secondary School,Recommended
+W-018,Villivakkam,West,13.1013,80.2103,145000,16700,6,14,0.4,Rail + Bus,Low,20,1.3,Mixed,7.8,Excellent,High,High,Fiber,28,94,95,94,83,,89.7,93,Community Health Centre,Recommended
+W-019,Ayanavaram,Central,13.0993,80.2340,121000,17300,5,13,0.4,Poonamallee High Road,Low,18,1.1,Residential,5.9,High,High,High,5G,31,94,95,93,79,,88.6,92,Government School,Recommended
+W-020,Kilpauk,Central,13.0786,80.2405,164000,19600,9,18,0.3,Metro + Bus,Very Low,23,1.0,Commercial + Residential,5.4,Excellent,High,High,Fiber,36,98,98,97,71,,94.2,96,Multi-speciality Hospital,Highly Recommended
+W-021,Egmore,Central,13.0732,80.2609,176000,21400,9,19,0.3,Metro + Rail,Very Low,20,1.0,Commercial,4.8,Excellent,High,High,Fiber,39,99,99,98,68,,95.6,97,Government Hospital,Highly Recommended
+W-022,Nungambakkam,Central,13.0604,80.2412,162000,20100,8,18,0.4,Metro + Bus,Very Low,22,1.1,Mixed,5.5,Excellent,High,High,Fiber,37,98,98,97,70,,94.8,96,Government School,Highly Recommended
+W-023,Royapettah,Central,13.0546,80.2648,148000,19200,8,15,0.4,Bus + Metro,Low,16,1.2,Mixed,5.2,Excellent,High,High,5G,36,96,96,96,73,,92.7,95,Urban Health Centre,Recommended
+W-024,Mylapore,Central,13.0339,80.2691,141000,18800,7,16,0.5,Bus,Low,15,1.2,Residential,5.8,Excellent,High,High,Fiber,38,95,95,95,72,,91.9,94,Community Hospital,Recommended
+W-025,Triplicane,Central,13.0569,80.2760,157000,22300,8,17,0.3,Metro + Bus,Moderate,13,1.0,Commercial,4.6,Excellent,High,High,Fiber,35,97,97,95,71,,91.3,94,Government Hospital,Recommended
+W-026,Royapuram,North,13.1067,80.2946,136000,17600,6,13,0.5,Rail + Port Road,Moderate,11,1.4,Mixed,7.2,High,High,High,Fiber,24,91,92,91,86,,86.8,91,Fire & Rescue Station,Recommended
+W-027,Tondiarpet,North,13.1290,80.2870,149000,18900,6,14,0.4,NH + Bus,Moderate,10,1.3,Industrial,8.1,High,High,High,Fiber,22,90,91,90,88,,85.7,90,Primary Health Centre,Recommended
+W-028,Washermanpet,North,13.1152,80.2843,133000,19100,5,12,0.5,Metro + Bus,Moderate,12,1.2,Residential,6.8,High,High,High,5G,25,91,90,89,85,,84.9,89,Government School,Recommended
+W-029,Ennore,North,13.2300,80.3200,74000,5900,3,8,0.8,Port Road,High,6,0.8,Industrial,15.5,Medium,Medium,High,4G,16,82,84,76,92,,76.8,85,Disaster Response Centre,Conditionally Recommended
+W-030,Manali,North,13.1667,80.2667,92000,7400,4,9,0.7,NH + Industrial Road,High,8,1.0,Industrial,14.2,Medium,Medium,High,4G,15,84,85,75,91,,75.9,84,Emergency Medical Centre,Conditionally Recommended
+W-031,Thiruvottiyur,North,13.1600,80.3000,118000,10800,5,12,0.6,Bus + NH,Moderate,9,1.2,Residential,10.8,High,High,High,Fiber,19,89,90,88,91,,84.2,89,Community Health Centre,Recommended
+W-032,Ekkatuthangal,West,13.0155,80.2050,112000,13500,5,11,0.3,Metro + GST Road,Low,22,1.1,Industrial + Commercial,7.5,Excellent,High,High,Fiber,30,95,96,95,82,,90.6,94,Fire & Emergency Station,Highly Recommended
+W-033,Koyambedu,West,13.0694,80.1948,170000,18500,8,16,0.2,Metro + Bus Terminus,Low,19,1.0,Commercial,6.2,Excellent,High,High,5G,33,98,99,97,76,,93.4,96,Government Hospital,Highly Recommended
+W-034,Mogappair,West,13.0850,80.1750,136000,14200,6,15,0.4,Bus + Ring Road,Low,23,1.2,Residential,8.1,High,High,High,Fiber,28,94,94,93,84,,89.8,93,Higher Secondary School,Recommended
+W-035,Navalur,South,12.8440,80.2270,104000,9100,4,10,0.5,OMR,Moderate,17,1.6,IT Corridor,11.3,High,High,High,Fiber,24,91,92,91,88,,87.6,92,Primary Health Centre,Recommended
+W-036,Siruseri,South,12.8230,80.2170,98000,8400,3,9,0.4,OMR + SIPCOT,Low,21,1.4,IT & Mixed,13.5,Excellent,High,High,Fiber,22,93,93,94,90,,89.1,93,Multi-speciality Hospital,Recommended
+W-037,Injambakkam,Coastal,12.9260,80.2500,86000,6700,3,8,0.6,ECR,Moderate,8,1.0,Coastal Residential,12.8,Medium,High,High,5G,27,88,89,86,85,,82.4,88,Coastal Emergency Centre,Recommended
+W-038,Neelankarai,Coastal,12.9490,80.2560,92000,7500,4,9,0.5,ECR,Moderate,7,0.9,Coastal Mixed,11.7,Medium,High,High,Fiber,29,89,90,87,84,,83.6,89,Urban Health Centre,Recommended
+W-039,Thoraipakkam,South,12.9400,80.2320,121000,11600,5,11,0.3,OMR + Radial Road,Low,16,1.3,Mixed,9.2,Excellent,High,High,Fiber,26,95,95,94,87,,90.9,94,Government Hospital,Highly Recommended
+W-040,Medavakkam,South,12.9200,80.1920,116000,10900,4,10,0.5,Velachery Main Road,Moderate,18,1.5,Residential,10.4,High,High,High,Fiber,23,90,91,90,89,,86.8,91,Government School,Recommended

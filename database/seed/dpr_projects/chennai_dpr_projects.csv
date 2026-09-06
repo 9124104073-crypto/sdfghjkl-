@@ -1,0 +1,41 @@
+project_code,area,name,project_type,sector,suitability_score,timeline_months,peak_labour,machinery,budget_cr,risk_level,scheme_name,recommendation
+PRJ-001,Velachery,Primary Health Centre,Health Centre,Healthcare,95,12,85,Excavator; Crane,18,Medium,Ayushman Bharat (PM-JAY),Approve
+PRJ-002,Pallikaranai,Storm Water Drain,Drainage,Flood Mitigation & Drainage,98,10,90,Excavator,25,High,AMRUT 2.0,High Priority
+PRJ-003,Tambaram,Water Tank,Water Supply,Water & Sanitation,93,8,60,Concrete Mixer,10,Low,Jal Jeevan Mission,Approve
+PRJ-004,Mudichur,Flood Shelter,Disaster Shelter,Emergency Services,94,9,70,Excavator,12,High,National Disaster Management Programme,High Priority
+PRJ-005,Medavakkam,Government School,School,Education,92,14,110,Crane,28,Low,Samagra Shiksha,Approve
+PRJ-006,Sholinganallur,Road Expansion,Road,Transport & Connectivity,91,16,140,Paver; Roller,40,Medium,PMGSY,Approve
+PRJ-007,Perungudi,STP,Sewerage,Flood Mitigation & Drainage,90,18,120,Excavator,55,Medium,AMRUT 2.0,Approve
+PRJ-008,Porur,Water Pipeline,Water Supply,Water & Sanitation,92,10,75,Trenching Machine,15,Low,Jal Jeevan Mission,Approve
+PRJ-009,Adyar,Urban Health Centre,Health Centre,Healthcare,89,12,80,Crane,16,Medium,National Health Mission,Approve
+PRJ-010,Guindy,Smart Traffic System,Smart Infrastructure,Transport & Connectivity,88,6,40,Utility Vehicle,8,Low,Smart Cities Mission,Approve
+PRJ-011,Anna Nagar,School Upgrade,School,Education,90,8,55,Concrete Mixer,11,Low,Samagra Shiksha,Approve
+PRJ-012,T. Nagar,Public Toilets,Sanitation,Public Amenities,86,5,35,Mini Excavator,4,Low,Swachh Bharat Mission,Approve
+PRJ-013,Mylapore,Heritage Road,Road,Transport & Connectivity,87,10,70,Road Roller,14,Medium,Smart Cities Mission,Approve
+PRJ-014,Royapuram,Fishing Harbour,Coastal Infrastructure,Environment & Sustainability,88,18,130,Crane,60,Medium,PM Matsya Sampada Yojana,Approve
+PRJ-015,Ambattur,Government Hospital,Hospital,Healthcare,96,24,220,Tower Crane,120,Medium,Ayushman Bharat Health Infrastructure Mission,High Priority
+PRJ-016,Madhavaram,Water Tank,Water Supply,Water & Sanitation,89,8,50,Concrete Mixer,9,Low,Jal Jeevan Mission,Approve
+PRJ-017,Kolathur,Community Health Centre,Health Centre,Healthcare,90,12,90,Excavator,20,Medium,National Health Mission,Approve
+PRJ-018,Chromepet,Bridge,Bridge,Transport & Connectivity,91,20,180,Crane,75,Medium,PMGSY,Approve
+PRJ-019,Meenambakkam,Airport Link Road,Road,Transport & Connectivity,89,18,160,Paver,85,Low,PM Gati Shakti,Approve
+PRJ-020,Avadi,Skill Centre,Skill Centre,Education,87,10,65,Concrete Mixer,18,Low,PM Kaushal Vikas Yojana,Approve
+PRJ-021,Manali,Air Monitoring Centre,Environmental Monitoring,Environment & Sustainability,84,6,30,Utility Vehicle,6,Low,National Clean Air Programme,Approve
+PRJ-022,Ennore,Coastal Protection,Coastal Infrastructure,Environment & Sustainability,95,22,170,Dredger,95,High,National Coastal Mission,High Priority
+PRJ-023,Koyambedu,Bus Stand Upgrade,Transit Facility,Transport & Connectivity,88,14,100,Crane,30,Medium,Smart Cities Mission,Approve
+PRJ-024,Red Hills,Reservoir Upgrade,Water Supply,Water & Sanitation,91,16,120,Excavator,45,Low,Jal Jeevan Mission,Approve
+PRJ-025,Villivakkam,Drainage,Drainage,Flood Mitigation & Drainage,90,9,70,Excavator,17,Medium,AMRUT 2.0,Approve
+PRJ-026,Perambur,Railway Over Bridge,Bridge,Transport & Connectivity,93,22,200,Tower Crane,110,Medium,PM Gati Shakti,High Priority
+PRJ-027,Thiruvanmiyur,Sea Wall,Coastal Infrastructure,Environment & Sustainability,92,20,160,Dredger,88,High,National Coastal Mission,Approve
+PRJ-028,Besant Nagar,Beach Facilities,Public Amenity,Public Amenities,85,8,50,Loader,12,Low,Swadesh Darshan Scheme,Approve
+PRJ-029,Marina,Public Amenities,Sanitation,Public Amenities,84,6,40,Mini Excavator,7,Low,Swachh Bharat Mission,Approve
+PRJ-030,Alandur,Metro Access Road,Road,Transport & Connectivity,90,15,130,Paver,35,Low,PM Gati Shakti,Approve
+PRJ-031,Manapakkam,Drainage,Drainage,Flood Mitigation & Drainage,88,8,60,Excavator,14,Medium,AMRUT 2.0,Approve
+PRJ-032,Kundrathur,Govt School,School,Education,89,12,95,Crane,22,Low,Samagra Shiksha,Approve
+PRJ-033,Nemmeli,Desalination Support,Water Supply,Water & Sanitation,94,24,210,Heavy Crane,180,Medium,Jal Jeevan Mission,High Priority
+PRJ-034,Triplicane,Health Centre,Health Centre,Healthcare,87,10,70,Excavator,16,Low,Ayushman Bharat (PM-JAY),Approve
+PRJ-035,Egmore,Hospital Expansion,Hospital,Healthcare,95,20,190,Tower Crane,95,Medium,Ayushman Bharat Health Infrastructure Mission,High Priority
+PRJ-036,Saidapet,Anganwadi,Anganwadi,Education,86,6,45,Concrete Mixer,5,Low,POSHAN Abhiyaan,Approve
+PRJ-037,Thoraipakkam,Waste Management,Solid Waste,Environment & Sustainability,91,12,100,Loader,32,Medium,Swachh Bharat Mission,Approve
+PRJ-038,Poonamallee,Affordable Housing,Housing,Housing,90,24,230,Tower Crane,160,Low,Pradhan Mantri Awas Yojana (Urban),High Priority
+PRJ-039,Nungambakkam,Digital Learning Centre,Digital Infrastructure,Education,85,8,40,Utility Vehicle,9,Low,Digital India Programme,Approve
+PRJ-040,North Chennai,Disaster Shelter,Disaster Shelter,Emergency Services,94,12,90,Excavator,20,High,National Disaster Management Programme,High Priority

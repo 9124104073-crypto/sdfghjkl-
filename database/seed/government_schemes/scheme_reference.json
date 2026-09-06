@@ -1,0 +1,167 @@
+{
+  "dataset": "government_scheme_reference",
+  "note": "Scheme names and mandates are drawn from publicly announced Central Government programmes. Portal URLs are indicative and are marked pending_verification: confirm against the administering ministry before any real-world funding decision. NIRMAN AI never lets a language model invent a scheme - the scheme engine may only select from this table.",
+  "default_verification_status": "pending_verification",
+  "schemes": [
+    {
+      "scheme_name": "AMRUT 2.0",
+      "short_name": "AMRUT",
+      "ministry": "Ministry of Housing and Urban Affairs",
+      "description": "Atal Mission for Rejuvenation and Urban Transformation - universal water supply and sewerage/septage coverage in urban local bodies, including stormwater drainage.",
+      "eligible_project_types": "Drainage;Sewerage;Storm Water Drain;Water Supply;Urban Water Body Rejuvenation",
+      "source_url": "https://amrut.mohua.gov.in/"
+    },
+    {
+      "scheme_name": "Jal Jeevan Mission",
+      "short_name": "JJM",
+      "ministry": "Ministry of Jal Shakti",
+      "description": "Potable water supply infrastructure including tanks, pipelines, reservoirs and supporting works.",
+      "eligible_project_types": "Water Supply;Water Tank;Reservoir;Pipeline;Desalination Support",
+      "source_url": "https://jaljeevanmission.gov.in/"
+    },
+    {
+      "scheme_name": "Ayushman Bharat (PM-JAY)",
+      "short_name": "PM-JAY",
+      "ministry": "National Health Authority, Ministry of Health and Family Welfare",
+      "description": "Health assurance and health and wellness centre programme; used here for primary and urban health centre proposals.",
+      "eligible_project_types": "Health Centre;Primary Health Centre;Urban Health Centre",
+      "source_url": "https://pmjay.gov.in/"
+    },
+    {
+      "scheme_name": "Ayushman Bharat Health Infrastructure Mission",
+      "short_name": "AB-HIM",
+      "ministry": "Ministry of Health and Family Welfare",
+      "description": "Public health infrastructure expansion - critical care blocks, district hospitals and health laboratories.",
+      "eligible_project_types": "Hospital;Hospital Expansion;Critical Care Block",
+      "source_url": "https://mohfw.gov.in/"
+    },
+    {
+      "scheme_name": "National Health Mission",
+      "short_name": "NHM",
+      "ministry": "Ministry of Health and Family Welfare",
+      "description": "Strengthening of urban and rural health systems including community health centres.",
+      "eligible_project_types": "Community Health Centre;Urban Health Centre;Health Centre",
+      "source_url": "https://nhm.gov.in/"
+    },
+    {
+      "scheme_name": "Samagra Shiksha",
+      "short_name": "Samagra Shiksha",
+      "ministry": "Ministry of Education",
+      "description": "Integrated school education scheme covering school infrastructure, upgrades and strengthening.",
+      "eligible_project_types": "School;Government School;School Upgrade;Higher Secondary School",
+      "source_url": "https://samagra.education.gov.in/"
+    },
+    {
+      "scheme_name": "PMGSY",
+      "short_name": "PMGSY",
+      "ministry": "Ministry of Rural Development",
+      "description": "Pradhan Mantri Gram Sadak Yojana - all-weather road connectivity, including associated bridge works.",
+      "eligible_project_types": "Road;Internal Roads;Bridge",
+      "source_url": "https://pmgsy.nic.in/"
+    },
+    {
+      "scheme_name": "PM Gati Shakti",
+      "short_name": "Gati Shakti",
+      "ministry": "Department for Promotion of Industry and Internal Trade",
+      "description": "National master plan for multi-modal infrastructure connectivity - link roads, rail over bridges and metro access works.",
+      "eligible_project_types": "Road;Bridge;Railway Over Bridge;Airport Link Road;Metro Access Road",
+      "source_url": "https://pmgatishakti.gov.in/"
+    },
+    {
+      "scheme_name": "Swachh Bharat Mission",
+      "short_name": "SBM",
+      "ministry": "Ministry of Housing and Urban Affairs",
+      "description": "Sanitation and solid waste management infrastructure in urban areas.",
+      "eligible_project_types": "Sanitation;Public Toilets;Solid Waste;Waste Management",
+      "source_url": "https://sbmurban.org/"
+    },
+    {
+      "scheme_name": "Pradhan Mantri Awas Yojana (Urban)",
+      "short_name": "PMAY-U",
+      "ministry": "Ministry of Housing and Urban Affairs",
+      "description": "Affordable housing for urban households.",
+      "eligible_project_types": "Housing;Affordable Housing",
+      "source_url": "https://pmay-urban.gov.in/"
+    },
+    {
+      "scheme_name": "Smart Cities Mission",
+      "short_name": "SCM",
+      "ministry": "Ministry of Housing and Urban Affairs",
+      "description": "Area-based urban development including smart mobility, heritage streetscapes and transit facilities.",
+      "eligible_project_types": "Smart Infrastructure;Transit Facility;Heritage Road;Road",
+      "source_url": "https://smartcities.gov.in/"
+    },
+    {
+      "scheme_name": "PM Matsya Sampada Yojana",
+      "short_name": "PMMSY",
+      "ministry": "Department of Fisheries, Ministry of Fisheries, Animal Husbandry and Dairying",
+      "description": "Fisheries infrastructure including fishing harbours and landing centres.",
+      "eligible_project_types": "Fishing Harbour;Coastal Infrastructure",
+      "source_url": "https://pmmsy.dof.gov.in/"
+    },
+    {
+      "scheme_name": "PM Kaushal Vikas Yojana",
+      "short_name": "PMKVY",
+      "ministry": "Ministry of Skill Development and Entrepreneurship",
+      "description": "Skill development infrastructure and training centres.",
+      "eligible_project_types": "Skill Centre;Skill Development Centre",
+      "source_url": "https://www.pmkvyofficial.org/"
+    },
+    {
+      "scheme_name": "National Clean Air Programme",
+      "short_name": "NCAP",
+      "ministry": "Ministry of Environment, Forest and Climate Change",
+      "description": "City-level air quality management including monitoring infrastructure.",
+      "eligible_project_types": "Environmental Monitoring;Air Quality Monitoring",
+      "source_url": "https://prana.cpcb.gov.in/"
+    },
+    {
+      "scheme_name": "National Coastal Mission",
+      "short_name": "NCM",
+      "ministry": "Ministry of Environment, Forest and Climate Change",
+      "description": "Coastal zone protection and shoreline management works.",
+      "eligible_project_types": "Coastal Infrastructure;Coastal Protection;Sea Wall",
+      "source_url": "https://moef.gov.in/"
+    },
+    {
+      "scheme_name": "National Disaster Management Programme",
+      "short_name": "NDMP",
+      "ministry": "National Disaster Management Authority, Ministry of Home Affairs",
+      "description": "Disaster preparedness and mitigation infrastructure including flood and cyclone shelters.",
+      "eligible_project_types": "Disaster Shelter;Flood Shelter;Flood Relief Centre;Disaster Response Centre",
+      "source_url": "https://ndma.gov.in/"
+    },
+    {
+      "scheme_name": "Swadesh Darshan Scheme",
+      "short_name": "Swadesh Darshan",
+      "ministry": "Ministry of Tourism",
+      "description": "Theme-based tourism circuit and destination infrastructure, including beach amenities.",
+      "eligible_project_types": "Public Amenity;Beach Infrastructure;Tourism Infrastructure",
+      "source_url": "https://swadeshdarshan.gov.in/"
+    },
+    {
+      "scheme_name": "POSHAN Abhiyaan",
+      "short_name": "POSHAN",
+      "ministry": "Ministry of Women and Child Development",
+      "description": "Nutrition mission covering Anganwadi infrastructure and services.",
+      "eligible_project_types": "Anganwadi;Nutrition Centre",
+      "source_url": "https://wcd.nic.in/"
+    },
+    {
+      "scheme_name": "Digital India Programme",
+      "short_name": "Digital India",
+      "ministry": "Ministry of Electronics and Information Technology",
+      "description": "Digital infrastructure and digital literacy facilities.",
+      "eligible_project_types": "Digital Infrastructure;Digital Learning Centre",
+      "source_url": "https://www.digitalindia.gov.in/"
+    },
+    {
+      "scheme_name": "PM Surya Ghar / Renewable Energy Programme",
+      "short_name": "PM Surya Ghar",
+      "ministry": "Ministry of New and Renewable Energy",
+      "description": "Rooftop solar and allied renewable energy deployment; used here for solar street lighting proposals.",
+      "eligible_project_types": "Renewable Energy;Solar Street Lights",
+      "source_url": "https://pmsuryaghar.gov.in/"
+    }
+  ]
+}

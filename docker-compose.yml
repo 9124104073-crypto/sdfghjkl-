@@ -1,0 +1,66 @@
+name: nirman-ai
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_USER: nirman
+      POSTGRES_PASSWORD: nirman
+      POSTGRES_DB: nirman
+    ports:
+      - "5432:5432"
+    volumes:
+      - nirman_db:/var/lib/postgresql/data
+      # Runs once on an empty volume: PostGIS + pgvector extensions and the
+      # geometry/vector column promotion.
+      - ./database/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nirman -d nirman"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://nirman:nirman@db:5432/nirman
+      CORS_ORIGINS: http://localhost:5173,http://localhost:8080
+      DEMO_MODE: "true"
+      AUTO_SEED: "true"
+      AI_PROVIDER: ${AI_PROVIDER:-mock}
+      LLM_BASE_URL: ${LLM_BASE_URL:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      MQTT_BROKER_URL: mqtt://mqtt:1883
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+      args:
+        # Empty: nginx proxies /api to the backend on the same origin.
+        VITE_API_BASE_URL: ""
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+  # Optional. The application runs normally when MQTT is unavailable.
+  mqtt:
+    image: eclipse-mosquitto:2
+    profiles: ["iot"]
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./docker/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+volumes:
+  nirman_db:

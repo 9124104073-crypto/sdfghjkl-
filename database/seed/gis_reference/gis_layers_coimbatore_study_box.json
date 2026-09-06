@@ -1,0 +1,55 @@
+{
+  "dataset": "gis_spatial_reference_layers",
+  "region": "Coimbatore study box (Tamil Nadu)",
+  "important": "This GIS layer pack comes from the supplied Spatial Data & Infrastructure Report, whose coordinates fall in the Coimbatore region (approx. 10.6-11.3 N, 76.7-77.2 E) - NOT Chennai. It is loaded as a separate reference region so the GIS layer schema (wards, hospitals, schools, water bodies, elevation/land use) can be exercised end to end without contaminating the Chennai study area. Do not mix these rows into Chennai analytics.",
+  "is_demo_data": true,
+  "verification_status": "demonstration",
+  "wards_and_villages": [
+    {"code": "W-04", "name": "Singanallur (Ward 57)", "category": "Urban Ward", "latitude": 11.0028, "longitude": 77.0242},
+    {"code": "W-05", "name": "Peelamedu (Ward 38)", "category": "Urban Ward", "latitude": 11.0294, "longitude": 77.0018},
+    {"code": "W-06", "name": "Ukkadam (Ward 80)", "category": "Urban Ward", "latitude": 10.9875, "longitude": 76.9622},
+    {"code": "W-07", "name": "Saravanampatti (Ward 2)", "category": "Urban Ward", "latitude": 11.0772, "longitude": 76.9945},
+    {"code": "W-08", "name": "Kovaipudur (Ward 91)", "category": "Urban Ward", "latitude": 10.9412, "longitude": 76.9156},
+    {"code": "V-09", "name": "Thondamuthur", "category": "Rural Village", "latitude": 10.9942, "longitude": 76.8285},
+    {"code": "V-10", "name": "Madukkarai", "category": "Peri-Urban Village", "latitude": 10.9045, "longitude": 76.9634},
+    {"code": "V-11", "name": "Perur", "category": "Peri-Urban Village", "latitude": 10.9781, "longitude": 76.9194},
+    {"code": "V-12", "name": "Sulur", "category": "Peri-Urban Village", "latitude": 11.0264, "longitude": 77.1242},
+    {"code": "V-13", "name": "Karamadai", "category": "Rural Village", "latitude": 11.2415, "longitude": 76.9582},
+    {"code": "V-14", "name": "Kinathukadavu", "category": "Rural Village", "latitude": 10.8164, "longitude": 77.0182},
+    {"code": "V-15", "name": "Vedapatti", "category": "Peri-Urban Village", "latitude": 10.9958, "longitude": 76.9014},
+    {"code": "V-16", "name": "Alandurai", "category": "Rural Village", "latitude": 10.9418, "longitude": 76.7725},
+    {"code": "V-17", "name": "Zamin Uthukuli (Pollachi Edge)", "category": "Rural Village", "latitude": 10.6721, "longitude": 77.0014},
+    {"code": "V-18", "name": "Arasur", "category": "Industrial Village", "latitude": 11.0745, "longitude": 77.1082},
+    {"code": "V-19", "name": "Chettipalayam", "category": "Semi-Rural Village", "latitude": 10.9242, "longitude": 77.0215},
+    {"code": "V-20", "name": "Chinnavedampatti", "category": "Peri-Urban Village", "latitude": 11.0612, "longitude": 76.9794}
+  ],
+  "hospitals": [
+    {"code": "HOSP-A01", "name": "Coimbatore Medical College Hospital (CMCH)", "serviced_zone": "RS Puram (W-01) & Gandhipuram (W-02)", "category": "Government General", "beds": 1200, "latitude": 11.0021, "longitude": 76.9744},
+    {"code": "HOSP-A02", "name": "KG Hospital & Post Graduate Medical Institute", "serviced_zone": "Ramanathapuram (W-03)", "category": "Private Multi-Specialty", "beds": 350, "latitude": 10.9985, "longitude": 76.9620},
+    {"code": "HOSP-A03", "name": "PSG Hospitals", "serviced_zone": "Peelamedu (W-05) & Saravanampatti (W-07)", "category": "Private Trust Teaching Hospital", "beds": 910, "latitude": 11.0261, "longitude": 77.0034},
+    {"code": "HOSP-A04", "name": "ESI Medical College Hospital", "serviced_zone": "Singanallur (W-04)", "category": "Public Sector / Insurance Supported", "beds": 500, "latitude": 11.0115, "longitude": 77.0312},
+    {"code": "HOSP-A05", "name": "Thondamuthur Block Primary Health Centre", "serviced_zone": "Thondamuthur (V-09) & Vedapatti (V-15)", "category": "Government PHC", "beds": 30, "latitude": 10.9935, "longitude": 76.8291}
+  ],
+  "schools": [
+    {"code": "SCH-B01", "name": "St. Michael's Higher Secondary School", "serviced_zone": "RS Puram (W-01)", "category": "Higher Secondary (Grades 9-12)", "students": 1450, "latitude": 11.0012, "longitude": 76.9645},
+    {"code": "SCH-B02", "name": "Government Higher Secondary School, Thondamuthur", "serviced_zone": "Thondamuthur (V-09)", "category": "Secondary & Higher Secondary (Grades 6-12)", "students": 680, "latitude": 10.9938, "longitude": 76.8310},
+    {"code": "SCH-B03", "name": "GRD Matriculation Higher Secondary School", "serviced_zone": "Peelamedu (W-05)", "category": "Primary to Higher Secondary (Grades 1-12)", "students": 2100, "latitude": 11.0281, "longitude": 77.0040},
+    {"code": "SCH-B04", "name": "VLB Ashram Matriculation School", "serviced_zone": "Kovaipudur (W-08)", "category": "Primary & Secondary (Grades 1-10)", "students": 850, "latitude": 10.9425, "longitude": 76.9182},
+    {"code": "SCH-B05", "name": "Holy Family Convent School", "serviced_zone": "Karamadai (V-13)", "category": "Matriculation Higher Secondary", "students": 1120, "latitude": 11.2430, "longitude": 76.9595}
+  ],
+  "water_bodies": [
+    {"code": "WB-C01", "name": "Ukkadam Periyakulam", "category": "Semi-Natural Lake Basin", "extent": "1.29 sq. km", "latitude": 10.9854, "longitude": 76.9612},
+    {"code": "WB-C02", "name": "Singanallur Lake", "category": "Wetland Eco-Reserve Lake", "extent": "1.65 sq. km", "latitude": 11.0005, "longitude": 77.0285},
+    {"code": "WB-C03", "name": "Sulur Periyakulam", "category": "Irrigation Feed Reservoir", "extent": "0.94 sq. km", "latitude": 11.0210, "longitude": 77.1290},
+    {"code": "RIV-C04", "name": "Noyyal River (Main Channel Valley Segment)", "category": "River System Channel", "extent": "25.0 km inside study box", "latitude": 10.9721, "longitude": 76.7845, "exit_latitude": 10.9912, "exit_longitude": 77.0514}
+  ],
+  "elevation_land_use": [
+    {"code": "W-01", "name": "RS Puram", "dem_m": 411, "slope_deg": 1.2, "slope_class": "Flat", "land_use": "High-Density Built-up (Commercial Mixed)"},
+    {"code": "W-04", "name": "Singanallur", "dem_m": 397, "slope_deg": 1.5, "slope_class": "Flat Valley", "land_use": "Mixed Industrial Low-Density Residential"},
+    {"code": "W-08", "name": "Kovaipudur", "dem_m": 470, "slope_deg": 4.2, "slope_class": "Upland Plain", "land_use": "Suburban Residential Plot Layouts / Open Space"},
+    {"code": "V-09", "name": "Thondamuthur", "dem_m": 465, "slope_deg": 4.8, "slope_class": "Rolling Plain", "land_use": "Active Agriculture (Banana/Coconut Orchards)"},
+    {"code": "V-10", "name": "Madukkarai", "dem_m": 440, "slope_deg": 3.5, "slope_class": "Uneven Terrain", "land_use": "Heavy Industrial Extractive Open Limestone Quarry"},
+    {"code": "V-13", "name": "Karamadai", "dem_m": 452, "slope_deg": 5.1, "slope_class": "Foothills Fringe", "land_use": "Intensive Agro-Forestry / Homestead Plantations"},
+    {"code": "V-16", "name": "Alandurai", "dem_m": 512, "slope_deg": 7.9, "slope_class": "Steep Base Slope", "land_use": "Eco-Tourism / Forest Buffer Conservation"}
+  ]
+}

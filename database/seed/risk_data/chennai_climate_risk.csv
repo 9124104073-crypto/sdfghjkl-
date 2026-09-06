@@ -1,0 +1,31 @@
+location,flood_vulnerability,annual_rainfall_mm,terrain_suitability,accessibility_risk,construction_delay_risk
+Velachery,High,1480,Low,Medium,High
+Mudichur,Very High,1505,Low,High,Very High
+Tambaram,Medium,1440,Medium,Medium,Medium
+Pallikaranai,Very High,1510,Low,High,Very High
+Perungudi,High,1460,Low,Medium,High
+Sholinganallur,Medium,1435,Medium,Low,Medium
+Thoraipakkam,High,1475,Low,Medium,High
+Medavakkam,High,1450,Medium,Medium,High
+Chromepet,Medium,1420,Medium,Low,Medium
+Guindy,Medium,1405,High,Low,Low
+Adyar,High,1470,Medium,Medium,High
+Saidapet,High,1465,Medium,Medium,High
+T. Nagar,Medium,1415,High,Low,Medium
+Nungambakkam,Medium,1400,High,Low,Medium
+Anna Nagar,Low,1390,High,Low,Low
+Ambattur,Medium,1410,Medium,Medium,Medium
+Madhavaram,Medium,1425,Medium,Medium,Medium
+Manali,High,1455,Low,High,High
+Ennore,Very High,1490,Low,High,Very High
+Royapuram,High,1460,Low,Medium,High
+Mylapore,Medium,1405,High,Low,Medium
+Triplicane,Medium,1415,Medium,Medium,Medium
+Egmore,Medium,1400,High,Low,Medium
+Porur,High,1450,Medium,Medium,High
+Poonamallee,Medium,1385,High,Medium,Medium
+Avadi,Low,1360,High,Low,Low
+Red Hills,Medium,1395,Medium,Medium,Medium
+Kolathur,High,1445,Low,Medium,High
+Koyambedu,Medium,1405,High,Low,Medium
+Meenambakkam,High,1465,Medium,Medium,High
