@@ -10,6 +10,7 @@ const NAV = [
   { to: "/recommendation", label: "Site Recommendation" },
   { to: "/priority", label: "Priority Ranking" },
   { to: "/risk", label: "Risk & Climate" },
+  { to: "/demand", label: "Demand Analysis" },
   { to: "/what-if", label: "What-If Simulator" },
   { to: "/cost", label: "Cost & Construction" },
   { to: "/schemes", label: "Government Schemes" },

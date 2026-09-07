@@ -5,6 +5,7 @@ import Copilot from "./pages/Copilot";
 import Cost from "./pages/Cost";
 import Dashboard from "./pages/Dashboard";
 import DataLineage from "./pages/DataLineage";
+import Demand from "./pages/Demand";
 import Explorer from "./pages/Explorer";
 import Dpr from "./pages/Dpr";
 import Iot from "./pages/Iot";
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="recommendation" element={<Recommendation />} />
           <Route path="priority" element={<Priority />} />
           <Route path="risk" element={<Risk />} />
+          <Route path="demand" element={<Demand />} />
           <Route path="what-if" element={<WhatIf />} />
           <Route path="cost" element={<Cost />} />
           <Route path="schemes" element={<Schemes />} />
