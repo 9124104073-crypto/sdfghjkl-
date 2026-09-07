@@ -99,19 +99,19 @@ export default function Explorer() {
       {!isVerifiedOnly && (
         <>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
-            <StatCard label="Localities shown" value={filtered.length} sub={`of ${sites.length}`} />
-            <StatCard label="Population served" value={fmtNumber(totals.pop)} />
-            <StatCard label="Land available" value={`${fmtNumber(totals.land, 1)} ac`} />
-            <StatCard label="Existing hospitals" value={totals.hosp} />
-            <StatCard label="Existing schools" value={totals.sch} />
-            <StatCard
+            <StatCard index={0} label="Localities shown" value={filtered.length} sub={`of ${sites.length}`} />
+            <StatCard index={1} label="Population served" value={fmtNumber(totals.pop)} />
+            <StatCard index={2} label="Land available" value={`${fmtNumber(totals.land, 1)} ac`} />
+            <StatCard index={3} label="Existing hospitals" value={totals.hosp} />
+            <StatCard index={4} label="Existing schools" value={totals.sch} />
+            <StatCard index={5}
               label="Study extent"
               value={spatial ? `${fmtNumber(spatial.convex_hull_area_km2)} km²` : "—"}
               sub="convex hull"
             />
           </div>
 
-          <Card title="Filters" className="mt-5">
+          <Card index={0} title="Filters" className="mt-5">
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <Field label="Search">
                 <input
@@ -174,7 +174,7 @@ export default function Explorer() {
 
           <AsyncPanel loading={loading} error={error} data={sites} onRetry={refetch}>
             {tab === "sites" && (
-              <Card className="mt-4" title="Candidate localities" actions={<DataStatusBadge status="demo" />}>
+              <Card index={1} className="mt-4" title="Candidate localities" actions={<DataStatusBadge status="demo" />}>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
@@ -243,7 +243,7 @@ export default function Explorer() {
             )}
 
             {tab === "assets" && (
-              <Card
+              <Card index={2}
                 className="mt-4"
                 title="Existing facilities and reference layers"
                 subtitle="Loaded GIS layers, grouped by type"
@@ -287,7 +287,7 @@ export default function Explorer() {
 
             {tab === "spatial" && (
               <div className="mt-4 grid gap-5 lg:grid-cols-2">
-                <Card
+                <Card index={3}
                   title="Coverage gaps"
                   subtitle="Localities with no candidate site within 5 km"
                   actions={<DataStatusBadge status="derived" />}
@@ -324,7 +324,7 @@ export default function Explorer() {
                   )}
                 </Card>
 
-                <Card
+                <Card index={4}
                   title="Catchment overlap"
                   subtitle="Sites competing for the same population"
                   actions={<DataStatusBadge status="derived" />}

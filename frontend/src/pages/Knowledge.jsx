@@ -65,16 +65,16 @@ export default function Knowledge() {
       <AsyncPanel loading={loading} error={statsError} data={stats} onRetry={refetch}>
         {stats && (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-            <StatCard label="Sources" value={stats.sources} />
-            <StatCard label="Documents" value={stats.documents} />
-            <StatCard label="Chunks" value={stats.chunks} />
-            <StatCard label="Embeddings" value={stats.embeddings} />
-            <StatCard label="Dimensions" value={stats.dimensions} sub="per vector" />
+            <StatCard index={0} label="Sources" value={stats.sources} />
+            <StatCard index={1} label="Documents" value={stats.documents} />
+            <StatCard index={2} label="Chunks" value={stats.chunks} />
+            <StatCard index={3} label="Embeddings" value={stats.embeddings} />
+            <StatCard index={4} label="Dimensions" value={stats.dimensions} sub="per vector" />
           </div>
         )}
       </AsyncPanel>
 
-      <Card
+      <Card index={0}
         title="Search the knowledge base"
         subtitle="Nothing external is scraped — retrieval covers only what the platform can vouch for"
         actions={<DataStatusBadge status="source" />}
@@ -160,7 +160,7 @@ export default function Knowledge() {
       </Card>
 
       <div className="grid gap-5 lg:grid-cols-3">
-        <Card title="Recent AI output" subtitle="Persisted engine and Copilot results" actions={<DataStatusBadge status="ai_generated" />}>
+        <Card index={1} title="Recent AI output" subtitle="Persisted engine and Copilot results" actions={<DataStatusBadge status="ai_generated" />}>
           <div className="max-h-72 space-y-1.5 overflow-y-auto">
             {(aiHistory?.data || []).map((r) => (
               <div key={r.id} className="rounded-md bg-slate-50 px-2.5 py-1.5">
@@ -183,7 +183,7 @@ export default function Knowledge() {
           </div>
         </Card>
 
-        <Card title="Audit trail" subtitle="What the platform was asked to do">
+        <Card index={2} title="Audit trail" subtitle="What the platform was asked to do">
           <div className="max-h-72 space-y-1.5 overflow-y-auto">
             {(audit?.data || []).map((a) => (
               <div key={a.id} className="rounded-md bg-slate-50 px-2.5 py-1.5">
@@ -200,7 +200,7 @@ export default function Knowledge() {
           </div>
         </Card>
 
-        <Card title="MQTT ingestion" subtitle="ESP32 → broker → Risk engine">
+        <Card index={3} title="MQTT ingestion" subtitle="ESP32 → broker → Risk engine">
           {mqtt ? (
             <>
               <div className="flex items-center gap-2">

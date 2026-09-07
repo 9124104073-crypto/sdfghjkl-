@@ -149,3 +149,110 @@ html { scroll-behavior: smooth; }
   .nir-reveal, .nir-page, .nir-skeleton, .nir-flash, .nir-ping::after { animation: none !important; }
   .nir-interactive:hover, .nir-interactive:active { transform: none !important; }
 }
+
+/* ==========================================================================
+   Visual system — depth, glass and light
+   ========================================================================== */
+
+/* Ambient field behind the page. Two slow-drifting radial washes, fixed so
+   they never scroll-jank, and low enough in opacity to stay out of the way
+   of data. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(46rem 30rem at 12% -8%, rgba(45, 212, 191, 0.16), transparent 60%),
+    radial-gradient(40rem 28rem at 96% 4%, rgba(56, 189, 248, 0.14), transparent 62%),
+    radial-gradient(38rem 26rem at 60% 108%, rgba(20, 184, 166, 0.10), transparent 60%);
+  animation: nir-drift 26s var(--ease-inout) infinite alternate;
+}
+@keyframes nir-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(0, -2.5%, 0) scale(1.06); }
+}
+
+/* Frosted surfaces. Cards sit on a translucent white so the field shows
+   through just enough to read as depth rather than decoration. */
+.panel-glass,
+section.rounded-xl {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: saturate(1.4) blur(14px);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  border-color: rgba(203, 213, 225, 0.75);
+  box-shadow:
+    0 1px 2px rgba(15, 40, 52, 0.04),
+    0 8px 24px -16px rgba(15, 40, 52, 0.22);
+}
+
+header.sticky {
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: saturate(1.6) blur(18px);
+  -webkit-backdrop-filter: saturate(1.6) blur(18px);
+  border-bottom: 1px solid rgba(203, 213, 225, 0.6);
+}
+
+/* Stat tiles: a hairline of accent along the top edge, brightening on hover. */
+.stat-tile { position: relative; overflow: hidden; }
+.stat-tile::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0; height: 2px;
+  background: linear-gradient(90deg, var(--color-brand-400), var(--color-brand-600));
+  opacity: 0.5;
+  transition: opacity var(--dur) var(--ease-out);
+}
+.stat-tile:hover::after { opacity: 1; }
+.stat-tile.tone-good::after  { background: linear-gradient(90deg, #34d399, #059669); }
+.stat-tile.tone-warn::after  { background: linear-gradient(90deg, #fbbf24, #d97706); }
+.stat-tile.tone-bad::after   { background: linear-gradient(90deg, #fb7185, #e11d48); }
+
+/* Sliding indicator under the active nav item. */
+.nav-link { position: relative; }
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 12px; right: 12px; bottom: 2px; height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--dur) var(--ease-spring);
+}
+.nav-link:hover::after { transform: scaleX(0.5); }
+.nav-link[aria-current="page"]::after { transform: scaleX(1); }
+
+/* Table rows: a travelling highlight rather than a flat background swap. */
+tbody tr { transition: background-color var(--dur-fast) linear; }
+tbody tr:hover { background: linear-gradient(90deg, rgba(20,184,166,.07), rgba(20,184,166,.02)); }
+
+/* Bars grow from zero on first paint. */
+@keyframes nir-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.bar-grow { transform-origin: left center; animation: nir-grow var(--dur-slow) var(--ease-out) both; }
+
+/* Buttons get a press ripple via a pseudo-element scale. */
+.btn-press { position: relative; overflow: hidden; }
+.btn-press::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,.5), transparent 55%);
+  opacity: 0; transform: scale(0.4);
+  transition: opacity 420ms var(--ease-out), transform 420ms var(--ease-out);
+  pointer-events: none;
+}
+.btn-press:active::after { opacity: 1; transform: scale(1); transition-duration: 0ms; }
+
+/* Section headings get a subtle gradient wash on the number, not the text. */
+.grad-text {
+  background: linear-gradient(120deg, var(--color-brand-700), var(--color-brand-500) 55%, #0284c7);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none !important; }
+  .bar-grow { animation: none !important; }
+  .nav-link::after { transition: none !important; }
+}

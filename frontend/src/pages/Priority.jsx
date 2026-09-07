@@ -53,7 +53,7 @@ export default function Priority() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-4">
-        <Card
+        <Card index={0}
           title="Ranking weights"
           actions={
             <span
@@ -132,7 +132,7 @@ export default function Priority() {
           <AsyncPanel loading={loading} error={error} data={data?.results} onRetry={refetch}>
             {data && (
               <>
-                <Card
+                <Card index={1}
                   title="Sector distribution"
                   subtitle="Average published impact score per sector"
                   actions={<DataStatusBadge status="demo" />}
@@ -155,7 +155,7 @@ export default function Priority() {
                   </ResponsiveContainer>
                 </Card>
 
-                <Card
+                <Card index={2}
                   title={`Ranked projects (${data.projects_ranked})`}
                   actions={<DataStatusBadge status="derived" />}
                 >

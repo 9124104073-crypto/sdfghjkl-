@@ -45,17 +45,17 @@ export default function Risk() {
         {data && (
           <>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <StatCard label="Locations assessed" value={data.summary.locations} />
-              <StatCard
+              <StatCard index={0} label="Locations assessed" value={data.summary.locations} />
+              <StatCard index={1}
                 label="High / very high"
                 value={data.summary.high_risk_count}
                 tone="bad"
               />
-              <StatCard
+              <StatCard index={2}
                 label="Average rainfall"
                 value={`${fmtNumber(data.summary.average_rainfall_mm)} mm`}
               />
-              <StatCard
+              <StatCard index={3}
                 label="Very high flood risk"
                 value={data.summary.flood_vulnerability_distribution["Very High"] || 0}
                 tone="bad"
@@ -63,7 +63,7 @@ export default function Risk() {
             </div>
 
             <div className="mt-5 grid gap-5 lg:grid-cols-5">
-              <Card
+              <Card index={0}
                 title="Risk map"
                 subtitle="Marker colour shows flood vulnerability"
                 className="lg:col-span-3"
@@ -97,7 +97,7 @@ export default function Risk() {
               </Card>
 
               {current && (
-                <Card
+                <Card index={1}
                   title={current.location}
                   subtitle="Risk breakdown"
                   className="lg:col-span-2"
@@ -161,7 +161,7 @@ export default function Risk() {
               )}
             </div>
 
-            <Card className="mt-5" title="All locations" actions={<DataStatusBadge status="derived" />}>
+            <Card index={2} className="mt-5" title="All locations" actions={<DataStatusBadge status="derived" />}>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>

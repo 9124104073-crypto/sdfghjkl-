@@ -48,7 +48,7 @@ export default function Dpr() {
 
       <AsyncPanel loading={loading} error={error} data={projects} onRetry={refetch}>
         <div className="grid gap-5 lg:grid-cols-4">
-          <Card title="Select project" subtitle={`${projects.length} in portfolio`}>
+          <Card index={0} title="Select project" subtitle={`${projects.length} in portfolio`}>
             <div className="max-h-[560px] space-y-1 overflow-y-auto pr-1">
               {projects.map((p) => (
                 <button
@@ -74,7 +74,7 @@ export default function Dpr() {
 
           <div className="space-y-5 lg:col-span-3">
             {active && (
-              <Card
+              <Card index={1}
                 title={active.name}
                 subtitle={`${active.area} · ${active.project_code}`}
                 actions={
@@ -118,7 +118,7 @@ export default function Dpr() {
             )}
 
             {dpr && (
-              <Card
+              <Card index={2}
                 title="Detailed Project Report"
                 subtitle={`Generated ${dpr.generated_on}`}
                 actions={<DataStatusBadge status="ai_generated" />}

@@ -40,7 +40,7 @@ export default function Schemes() {
       <AsyncPanel loading={loading} error={error} data={data?.schemes} onRetry={refetch}>
         {data && (
           <>
-            <Card
+            <Card index={0}
               title="Scheme lookup"
               subtitle="Match any project type against the reference table"
             >
@@ -108,7 +108,7 @@ export default function Schemes() {
             </Card>
 
             <div className="mt-5 grid gap-5 lg:grid-cols-5">
-              <Card
+              <Card index={1}
                 title={`Project mappings (${recommendations.length})`}
                 className="lg:col-span-3"
                 actions={<DataStatusBadge status="derived" />}
@@ -153,7 +153,7 @@ export default function Schemes() {
                 </div>
               </Card>
 
-              <Card
+              <Card index={2}
                 title={`Scheme reference (${data.schemes.length})`}
                 className="lg:col-span-2"
                 actions={<DataStatusBadge status="source" />}

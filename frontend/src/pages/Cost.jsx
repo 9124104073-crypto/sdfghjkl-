@@ -54,7 +54,7 @@ export default function Cost() {
 
       <AsyncPanel loading={loading} error={error} data={projects} onRetry={refetch}>
         <div className="grid gap-5 lg:grid-cols-3">
-          <Card title="Portfolio" subtitle={`${projects.length} proposed projects`}>
+          <Card index={0} title="Portfolio" subtitle={`${projects.length} proposed projects`}>
             <div className="max-h-[520px] space-y-1 overflow-y-auto pr-1">
               {projects.map((p) => (
                 <button
@@ -77,7 +77,7 @@ export default function Cost() {
 
           <div className="space-y-5 lg:col-span-2">
             {detail && cost && (
-              <Card
+              <Card index={1}
                 title={detail.project.name}
                 subtitle={`${detail.project.area} · ${detail.project.sector}`}
                 actions={<DataStatusBadge status={cost.data_status} />}
@@ -183,7 +183,7 @@ export default function Cost() {
               </Card>
             )}
 
-            <Card
+            <Card index={2}
               title="Ad-hoc estimator"
               subtitle="Estimate a project type that is not yet in the portfolio"
             >

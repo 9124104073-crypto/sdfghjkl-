@@ -103,7 +103,7 @@ export default function MapPage() {
         </p>
       </div>
 
-      <Card
+      <Card index={0}
         title="Layers"
         actions={<DataStatusBadge status="demo" />}
         subtitle="Toggle what appears on the map"
@@ -129,7 +129,7 @@ export default function MapPage() {
       <AsyncPanel loading={loading} error={error} data={gis} onRetry={refetch}>
         {gis && (
           <div className="grid gap-5 lg:grid-cols-4">
-            <Card className="lg:col-span-3" title={`${markers.length} features plotted`}>
+            <Card index={1} className="lg:col-span-3" title={`${markers.length} features plotted`}>
               <MapView
                 height="560px"
                 markers={markers}
@@ -144,7 +144,7 @@ export default function MapPage() {
               />
             </Card>
 
-            <Card title="Selection" subtitle="Click any marker">
+            <Card index={2} title="Selection" subtitle="Click any marker">
               {selected ? (
                 <div className="space-y-2">
                   <p className="text-sm font-semibold text-slate-900">{selected.label}</p>

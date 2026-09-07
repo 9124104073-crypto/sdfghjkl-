@@ -42,25 +42,25 @@ export default function Dashboard() {
         {data && (
           <>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-              <StatCard label="Sites assessed" value={fmtNumber(data.metrics.sites_assessed)} />
-              <StatCard
+              <StatCard index={0} label="Sites assessed" value={fmtNumber(data.metrics.sites_assessed)} />
+              <StatCard index={1}
                 label="Recommended sites"
                 value={fmtNumber(data.metrics.recommended_sites)}
                 tone="good"
                 sub="per source dataset"
               />
-              <StatCard label="Projects" value={fmtNumber(data.metrics.projects)} />
-              <StatCard
+              <StatCard index={2} label="Projects" value={fmtNumber(data.metrics.projects)} />
+              <StatCard index={3}
                 label="Portfolio outlay"
                 value={fmtCrore(data.metrics.total_budget_cr)}
                 sub="planning-level"
               />
-              <StatCard
+              <StatCard index={4}
                 label="High-risk areas"
                 value={fmtNumber(data.metrics.high_risk_areas)}
                 tone="bad"
               />
-              <StatCard
+              <StatCard index={5}
                 label="Sensor alerts"
                 value={fmtNumber(data.metrics.sensor_alerts)}
                 tone={data.metrics.sensor_alerts > 0 ? "warn" : "good"}
@@ -69,7 +69,7 @@ export default function Dashboard() {
             </div>
 
             <div className="mt-5 grid gap-5 lg:grid-cols-3">
-              <Card
+              <Card index={0}
                 title="Top candidate sites"
                 subtitle="Hospital siting under default weights"
                 className="lg:col-span-2"
@@ -118,7 +118,7 @@ export default function Dashboard() {
               </Card>
 
               <div className="space-y-5">
-                <Card title="Risk profile" subtitle="Proposed projects by risk class">
+                <Card index={1} title="Risk profile" subtitle="Proposed projects by risk class">
                   <div className="flex justify-center py-1">
                     <Donut
                       ariaLabel="Proposed projects by risk class"
@@ -142,7 +142,7 @@ export default function Dashboard() {
                   </div>
                 </Card>
 
-                <Card title="Population outlook" subtitle="Sampled localities, 2026 to 2045">
+                <Card index={2} title="Population outlook" subtitle="Sampled localities, 2026 to 2045">
                   <p className="text-2xl font-semibold text-slate-900">
                     +{data.population.overall_growth_pct}%
                   </p>
@@ -161,7 +161,7 @@ export default function Dashboard() {
             </div>
 
             <div className="mt-5 grid gap-5 lg:grid-cols-2">
-              <Card title="Projects by sector" actions={<DataStatusBadge status="demo" />}>
+              <Card index={3} title="Projects by sector" actions={<DataStatusBadge status="demo" />}>
                 <ResponsiveContainer width="100%" height={260}>
                   <BarChart
                     data={Object.entries(data.sector_distribution)
@@ -185,7 +185,7 @@ export default function Dashboard() {
                 </ResponsiveContainer>
               </Card>
 
-              <Card
+              <Card index={4}
                 title="Highest priority projects"
                 subtitle="Re-ranked by the Priority Engine"
                 actions={<DataStatusBadge status="derived" />}

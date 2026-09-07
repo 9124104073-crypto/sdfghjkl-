@@ -80,7 +80,7 @@ export default function Layout() {
                   to={item.to}
                   end={item.end}
                   className={({ isActive }) =>
-                    `nir-row block whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                    `nav-link nir-row block whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition ${
                       isActive
                         ? "bg-brand-700 text-white"
                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"

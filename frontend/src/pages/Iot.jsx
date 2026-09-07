@@ -60,15 +60,15 @@ export default function Iot() {
         {data && (
           <>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-              <StatCard label="Devices" value={data.summary.total} />
-              <StatCard label="Online" value={data.summary.online} tone="good" />
-              <StatCard label="Normal" value={data.summary.NORMAL} tone="good" />
-              <StatCard label="Warning" value={data.summary.WARNING} tone="warn" />
-              <StatCard label="Critical" value={data.summary.CRITICAL} tone="bad" />
+              <StatCard index={0} label="Devices" value={data.summary.total} />
+              <StatCard index={1} label="Online" value={data.summary.online} tone="good" />
+              <StatCard index={2} label="Normal" value={data.summary.NORMAL} tone="good" />
+              <StatCard index={3} label="Warning" value={data.summary.WARNING} tone="warn" />
+              <StatCard index={4} label="Critical" value={data.summary.CRITICAL} tone="bad" />
             </div>
 
             <div className="mt-5 grid gap-5 lg:grid-cols-5">
-              <Card
+              <Card index={0}
                 title="Sensor fleet"
                 className="lg:col-span-2"
                 actions={<DataStatusBadge status="demo" />}
@@ -116,7 +116,7 @@ export default function Iot() {
               </Card>
 
               {selected && (
-                <Card
+                <Card index={1}
                   title={`${selected.sensor_label} — ${selected.location}`}
                   subtitle={selected.device_id}
                   className="lg:col-span-3"
@@ -228,7 +228,7 @@ export default function Iot() {
               )}
             </div>
 
-            <Card className="mt-5" title="Device locations">
+            <Card index={2} className="mt-5" title="Device locations">
               <MapView
                 height="320px"
                 markers={devices

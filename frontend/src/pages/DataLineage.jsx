@@ -18,7 +18,7 @@ export default function DataLineage() {
 
       <AsyncPanel loading={loading} error={error} data={sources?.data} onRetry={refetch}>
         {lineage && (
-          <Card
+          <Card index={0}
             title="Data lineage"
             subtitle="Metric → Source → Processing → Decision engine → Output"
             actions={<DataStatusBadge status="source" />}
@@ -54,7 +54,7 @@ export default function DataLineage() {
 
         <div className="mt-5 grid gap-5 lg:grid-cols-2">
           {sources && (
-            <Card title={`Data-source registry (${sources.data.length})`}>
+            <Card index={1} title={`Data-source registry (${sources.data.length})`}>
               <div className="max-h-[520px] space-y-2 overflow-y-auto pr-1">
                 {sources.data.map((s) => (
                   <div key={s.dataset_name} className="rounded-lg border border-slate-200 px-3 py-2">
@@ -87,7 +87,7 @@ export default function DataLineage() {
           )}
 
           {providers && (
-            <Card
+            <Card index={2}
               title="Data providers"
               subtitle="Swapping demonstration data for authoritative sources is a configuration change"
             >

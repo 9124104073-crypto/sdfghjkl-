@@ -24,3 +24,6 @@ Thumbs.db
 
 # Generated artefacts
 dpr_sample.pdf
+
+# Local tooling (tunnel binary, etc.)
+.tools/

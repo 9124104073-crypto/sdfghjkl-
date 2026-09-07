@@ -75,7 +75,7 @@ export default function WhatIf() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-3">
-        <Card
+        <Card index={0}
           title="Planning priorities"
           subtitle="Weights must total 100%"
           actions={
@@ -146,7 +146,7 @@ export default function WhatIf() {
           ) : (
             <AsyncPanel loading={loading} error={error} data={data?.results} onRetry={refetch}>
               {data && (
-                <Card
+                <Card index={1}
                   title="Scenario ranking"
                   subtitle={data.scenario_summary}
                   actions={<DataStatusBadge status="derived" />}

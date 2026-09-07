@@ -94,7 +94,7 @@ export default function Recommendation() {
         </p>
       </div>
 
-      <Card title="Assessment parameters">
+      <Card index={0} title="Assessment parameters">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Field label="Infrastructure type">
             <select
@@ -152,7 +152,7 @@ export default function Recommendation() {
         empty="No sites matched these filters. Relax the flood-risk limit."
       >
         <div className="grid gap-5 lg:grid-cols-5">
-          <Card
+          <Card index={1}
             title={`Top ${results.length} sites`}
             subtitle={`for a ${infrastructureType.toLowerCase()}`}
             className="lg:col-span-3"
@@ -232,7 +232,7 @@ export default function Recommendation() {
 
           <div className="space-y-5 lg:col-span-2">
             {selected && (
-              <Card
+              <Card index={2}
                 title={`Why ${selected.site_name}?`}
                 subtitle="Explainable AI &middot; weighted contributions"
                 actions={<DataStatusBadge status="derived" />}
@@ -346,7 +346,7 @@ export default function Recommendation() {
             )}
 
             {selected && (
-              <Card title="Site profile" subtitle={selected.site.site_code}>
+              <Card index={3} title="Site profile" subtitle={selected.site.site_code}>
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
                   <Detail label="Zone" value={selected.site.zone} />
                   <Detail label="Land use" value={selected.site.land_use} />

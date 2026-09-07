@@ -109,22 +109,22 @@ export default function Demand() {
           {summary && (
             <>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-                <StatCard label="Localities" value={rows.length} />
-                <StatCard
+                <StatCard index={0} label="Localities" value={rows.length} />
+                <StatCard index={1}
                   label="Population 2026"
                   value={`${(summary.totals["2026"] / 1e6).toFixed(2)}M`}
                 />
-                <StatCard
+                <StatCard index={2}
                   label="Projected 2045"
                   value={`${(summary.totals["2045"] / 1e6).toFixed(2)}M`}
                   tone="warn"
                 />
-                <StatCard
+                <StatCard index={3}
                   label="Overall growth"
                   value={`+${summary.overall_growth_pct}%`}
                   sub="2026 to 2045"
                 />
-                <StatCard
+                <StatCard index={4}
                   label="Growth + flood risk"
                   value={compounding.length}
                   tone="bad"
@@ -133,7 +133,7 @@ export default function Demand() {
               </div>
 
               <div className="mt-5 grid gap-5 lg:grid-cols-3">
-                <Card
+                <Card index={0}
                   title="Aggregate trajectory"
                   subtitle="Combined population across the sample"
                   actions={<DataStatusBadge status="derived" />}
@@ -158,7 +158,7 @@ export default function Demand() {
                   </ResponsiveContainer>
                 </Card>
 
-                <Card title="Growth priority" subtitle="How the sample is distributed">
+                <Card index={1} title="Growth priority" subtitle="How the sample is distributed">
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={distribution} margin={{ left: -20, right: 10, top: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
@@ -179,7 +179,7 @@ export default function Demand() {
                   </ResponsiveContainer>
                 </Card>
 
-                <Card title="Fastest growing" subtitle="2026 to 2045">
+                <Card index={2} title="Fastest growing" subtitle="2026 to 2045">
                   <div className="space-y-2">
                     {summary.fastest_growing.map((r) => (
                       <button
@@ -203,7 +203,7 @@ export default function Demand() {
                 </Card>
               </div>
 
-              <Card
+              <Card index={3}
                 className="mt-5"
                 title="Growth against flood exposure"
                 subtitle="The cross-reference the source report calls for — fast growth in low-lying zones is the compounding case"
@@ -287,7 +287,7 @@ export default function Demand() {
               </Card>
 
               {current && (
-                <Card
+                <Card index={4}
                   className="mt-5"
                   title={current.location}
                   subtitle="Projected trajectory"

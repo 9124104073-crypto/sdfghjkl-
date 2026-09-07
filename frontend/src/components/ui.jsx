@@ -32,12 +32,21 @@ export function useApi(fetcher, deps = [], { immediate = true } = {}) {
   return { data, loading, error, refetch: run, setData };
 }
 
-export function Card({ title, subtitle, actions, children, className = "", interactive = false }) {
+export function Card({
+  title,
+  subtitle,
+  actions,
+  children,
+  className = "",
+  interactive = false,
+  index = 0,
+}) {
   return (
     <section
-      className={`rounded-xl border border-slate-200 bg-white shadow-sm nir-spotlight ${
+      className={`nir-reveal rounded-xl border border-slate-200 bg-white shadow-sm nir-spotlight ${
         interactive ? "nir-interactive" : ""
       } ${className}`}
+      style={{ animationDelay: `${index * 65}ms` }}
     >
       {(title || actions) && (
         <header className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
@@ -140,7 +149,7 @@ export function ErrorState({ message, onRetry }) {
         <button
           type="button"
           onClick={onRetry}
-          className="nir-interactive mt-3 rounded-md bg-rose-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-700"
+          className="btn-press nir-interactive mt-3 rounded-md bg-rose-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-700"
         >
           Try again
         </button>
@@ -165,17 +174,19 @@ export function AsyncPanel({ loading, error, data, onRetry, empty, children }) {
   return children;
 }
 
-export function StatCard({ label, value, sub, tone = "default", animate = true }) {
+export function StatCard({ label, value, sub, tone = "default", animate = true, index = 0 }) {
   const tones = {
     default: "text-slate-900",
     good: "text-emerald-700",
     warn: "text-amber-700",
     bad: "text-rose-700",
   };
-  // Only count numerics; a formatted string like "₹1,641 Cr" is shown as-is.
   const numeric = typeof value === "number" ? value : null;
   return (
-    <div className="nir-interactive nir-spotlight rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+    <div
+      className={`stat-tile tone-${tone} nir-interactive nir-spotlight nir-reveal rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm`}
+      style={{ animationDelay: `${index * 55}ms` }}
+    >
       <p className="text-[11px] font-medium uppercase tracking-wide text-slate-500">{label}</p>
       <p className={`mt-1 text-2xl font-semibold tabular-nums ${tones[tone]}`}>
         {animate && numeric !== null ? <AnimatedNumber value={numeric} /> : value}
@@ -194,7 +205,7 @@ export function ScoreBar({ value, max = 100, tone }) {
   return (
     <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
       <div
-        className={`h-full rounded-full ${color}`}
+        className={`bar-grow h-full rounded-full ${color}`}
         style={{ width: `${pct}%`, transition: "width var(--dur-slow) var(--ease-out)" }}
       />
     </div>
