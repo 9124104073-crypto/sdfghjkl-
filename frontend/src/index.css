@@ -1,3 +1,6 @@
+/* Fonts first: CSS ignores @import that follows any other rule. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
+
 @import "tailwindcss";
 @import "leaflet/dist/leaflet.css";
 
@@ -256,3 +259,10 @@ tbody tr:hover { background: linear-gradient(90deg, rgba(20,184,166,.07), rgba(2
   .bar-grow { animation: none !important; }
   .nav-link::after { transition: none !important; }
 }
+
+/* Copilot typing indicator */
+@keyframes nir-bounce {
+  0%, 100% { transform: translateY(0); opacity: .4; }
+  50%      { transform: translateY(-3px); opacity: 1; }
+}
+

@@ -1,4 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
+  Radar,
+  RadarChart,
+  ResponsiveContainer,
+  Tooltip as RTooltip,
+} from "recharts";
 import { useSearchParams } from "react-router-dom";
 import api from "../api/client";
 import MapView, { TIER_COLORS } from "../components/MapView";
@@ -52,6 +61,24 @@ export default function Recommendation() {
   );
 
   const results = data?.results || [];
+
+  // Radar over the nine factors for the leading candidates — the shape of a
+  // site's profile compares faster than nine separate numbers.
+  const radarTop = results.slice(0, 3);
+  const radarData = (radarTop[0]?.factors || []).map((f) => {
+    const row = {
+      factor: f.label
+        .replace(" availability", "")
+        .replace("Distance from existing facilities", "Facility distance")
+        .replace("Infrastructure gap", "Service gap"),
+    };
+    radarTop.forEach((r) => {
+      const match = r.factors.find((x) => x.name === f.name);
+      row[r.site_name] = match ? Math.round(match.normalized) : 0;
+    });
+    return row;
+  });
+  const RADAR_COLORS = ["#0F766E", "#F59E0B", "#94A3B8"];
 
   // Keep a valid selection as filters change.
   useEffect(() => {
@@ -181,7 +208,44 @@ export default function Recommendation() {
                 .map(([label, color]) => ({ label, color }))}
             />
 
-            <div className="mt-4 overflow-x-auto">
+            {radarData.length > 0 && (
+          <div className="mt-5 border-t border-slate-100 pt-4">
+            <div className="mb-1 text-xs font-semibold text-slate-800">Factor profile</div>
+            <p className="mb-2 text-[11px] text-slate-500">
+              Normalised 0–100 across the top {radarTop.length} candidates. A wider shape is a
+              stronger all-round site; a spiky one is strong in places and weak elsewhere.
+            </p>
+            <ResponsiveContainer width="100%" height={260}>
+              <RadarChart data={radarData} outerRadius="72%">
+                <PolarGrid stroke="#E3E8E3" />
+                <PolarAngleAxis dataKey="factor" tick={{ fill: "#64748B", fontSize: 10 }} />
+                <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+                {radarTop.map((r, i) => (
+                  <Radar
+                    key={r.site_id}
+                    name={r.site_name}
+                    dataKey={r.site_name}
+                    stroke={RADAR_COLORS[i]}
+                    fill={RADAR_COLORS[i]}
+                    fillOpacity={i === 0 ? 0.24 : 0.1}
+                    strokeWidth={i === 0 ? 2 : 1.4}
+                  />
+                ))}
+                <RTooltip contentStyle={{ borderRadius: 6, border: "1px solid #E3E8E3", fontSize: 12 }} />
+              </RadarChart>
+            </ResponsiveContainer>
+            <div className="flex flex-wrap gap-3">
+              {radarTop.map((r, i) => (
+                <span key={r.site_id} className="flex items-center gap-1.5 text-[11px] text-slate-600">
+                  <span className="h-2 w-2 rounded-sm" style={{ background: RADAR_COLORS[i] }} />
+                  {r.site_name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-4 overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 text-left text-[11px] uppercase tracking-wide text-slate-500">

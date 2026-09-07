@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import api, { describeError } from "../api/client";
+import { TypingDots } from "../components/widgets";
 import { Card, DataStatusBadge, Tag, useApi } from "../components/ui";
 
 export default function Copilot() {
@@ -144,12 +145,7 @@ export default function Copilot() {
               );
             })}
 
-            {busy && (
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                <span className="h-3 w-3 animate-spin rounded-full border-2 border-slate-300 border-t-brand-600" />
-                Running the decision engines...
-              </div>
-            )}
+            {busy && <TypingDots />}
           </div>
 
           <form
