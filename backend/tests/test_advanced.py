@@ -55,12 +55,38 @@ def test_unknown_provider_falls_back_to_mcda(db) -> None:
 # -- ML + SHAP -----------------------------------------------------------
 
 
-def test_model_fits_and_reports_cross_validated_metrics(db) -> None:
+def test_surrogate_trains_on_sampled_engine_output_not_the_40_seed_rows(db) -> None:
+    """The model must be fitted on a sampled input space, not the seed table.
+
+    Forty rows cannot support a generalisable model, so the surrogate is
+    trained on thousands of (attributes, weights) -> engine score pairs.
+    """
     sites = repo.all_sites(db)
     payload = ml_engine.site_model.importances(sites)
-    assert payload["model"]["training_rows"] == 40
-    assert payload["model"]["features"] == len(ml_engine.FEATURES)
-    assert len(payload["features"]) == len(ml_engine.FEATURES)
+    assert payload["model"]["training_rows"] >= 1000
+    assert payload["model"]["training_rows"] != len(sites)
+    # Weight columns must be features: the engine's score depends on them.
+    assert any(f["factor"].startswith("w_") for f in payload["features"])
+
+
+def test_surrogate_generalises_on_held_out_data(db) -> None:
+    """A held-out score that is actually meaningful, unlike CV over 40 rows."""
+    sites = repo.all_sites(db)
+    model = ml_engine.site_model.importances(sites)["model"]
+    assert model["cross_validated_r2"] is not None
+    assert model["cross_validated_r2"] > 0.6
+    assert model["cross_validated_mae"] < 8.0
+
+
+def test_surrogate_row_matches_the_training_contract(db) -> None:
+    """Inference and training must build identical feature vectors."""
+    from app.engines.ml_training import build_training_set
+    from app.engines.weights import DEFAULT_SITE_WEIGHTS
+
+    sites = repo.all_sites(db)
+    training = build_training_set(sites, ["Hospital"], samples=25)
+    row = ml_engine.surrogate_row(sites[0], "Hospital", dict(DEFAULT_SITE_WEIGHTS))
+    assert len(row) == len(training.feature_names) == training.X.shape[1]
 
 
 def test_shap_values_are_additive(db) -> None:
@@ -75,7 +101,12 @@ def test_ml_output_is_labelled_as_illustrative(db) -> None:
     sites = repo.all_sites(db)
     prediction = ml_engine.site_model.predict(sites[0], sites).as_dict()
     assert prediction["data_status"] == "ai_generated"
-    assert any("cannot support a generalisable model" in n for n in prediction["notes"])
+    # It must say what it actually is: an emulator of the engine, and not a
+    # claim about real-world suitability.
+    notes = " ".join(prediction["notes"]).lower()
+    assert "surrogate" in notes
+    assert "not trained on real-world outcomes" in notes
+    assert "scorer of record" in notes
 
 
 def test_ml_never_replaces_the_deterministic_default(db) -> None:

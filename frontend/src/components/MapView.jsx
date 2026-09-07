@@ -1,4 +1,5 @@
-import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip } from "react-leaflet";
+import { useEffect, useMemo, useRef } from "react";
+import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
 
 const CHENNAI_CENTER = [13.03, 80.22];
 
@@ -21,10 +22,56 @@ export const TIER_COLORS = {
 };
 
 /**
- * Leaflet map over OpenStreetMap tiles.
+ * Leaflet needs telling when its container changes size.
+ *
+ * Without this the map keeps the dimensions it had at mount: open a panel,
+ * resize the window or reveal a hidden tab and Leaflet renders only the tiles
+ * that fitted the original box, leaving grey gutters. A ResizeObserver is the
+ * reliable fix — window resize events alone miss layout-driven changes.
+ */
+function ResponsiveMap() {
+  const map = useMap();
+  useEffect(() => {
+    const container = map.getContainer();
+    let frame = 0;
+    const invalidate = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => map.invalidateSize({ animate: false }));
+    };
+    const observer = new ResizeObserver(invalidate);
+    observer.observe(container);
+    // Also catch the first paint, when the container may still be settling.
+    invalidate();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [map]);
+  return null;
+}
+
+/** Glides to the focused marker instead of teleporting. */
+function FocusMarker({ focus }) {
+  const map = useMap();
+  const previous = useRef(null);
+  useEffect(() => {
+    if (!focus || !Number.isFinite(focus.latitude) || !Number.isFinite(focus.longitude)) return;
+    const key = `${focus.latitude},${focus.longitude}`;
+    if (previous.current === key) return;
+    previous.current = key;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const target = [focus.latitude, focus.longitude];
+    if (reduced) map.setView(target, Math.max(map.getZoom(), 12), { animate: false });
+    else map.flyTo(target, Math.max(map.getZoom(), 12), { duration: 0.7, easeLinearity: 0.22 });
+  }, [focus, map]);
+  return null;
+}
+
+/**
+ * Leaflet map over OpenStreetMap.
  *
  * Markers are supplied by the caller as { id, latitude, longitude, label,
- * color, radius, rows } so every page can plot its own layer without this
+ * color, radius, rows }, so every page plots its own layer without this
  * component knowing about sites, risk or sensors.
  */
 export default function MapView({
@@ -34,10 +81,27 @@ export default function MapView({
   height = "480px",
   onSelect,
   legend,
+  focus,
+  basemap = "streets",
 }) {
-  const plotted = markers.filter(
-    (m) => Number.isFinite(m.latitude) && Number.isFinite(m.longitude)
+  const plotted = useMemo(
+    () => markers.filter((m) => Number.isFinite(m.latitude) && Number.isFinite(m.longitude)),
+    [markers]
   );
+
+  // Carto's Positron keeps the data legible; OSM standard shows more context.
+  const tiles =
+    basemap === "muted"
+      ? {
+          url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        }
+      : {
+          url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        };
 
   return (
     <div className="relative">
@@ -46,53 +110,67 @@ export default function MapView({
         zoom={zoom}
         style={{ height, width: "100%", borderRadius: "0.5rem" }}
         scrollWheelZoom
+        preferCanvas
+        zoomAnimation
+        markerZoomAnimation
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        {plotted.map((marker) => (
-          <CircleMarker
-            key={marker.id}
-            center={[marker.latitude, marker.longitude]}
-            radius={marker.radius ?? 8}
-            pathOptions={{
-              color: marker.color || "#0f766e",
-              fillColor: marker.color || "#0f766e",
-              fillOpacity: 0.65,
-              weight: 1.5,
-            }}
-            eventHandlers={onSelect ? { click: () => onSelect(marker) } : undefined}
-          >
-            <Tooltip direction="top" offset={[0, -6]}>
-              {marker.label}
-            </Tooltip>
-            <Popup>
-              <div className="min-w-[190px] text-xs">
-                <p className="text-sm font-semibold text-slate-900">{marker.label}</p>
-                {marker.rows?.map((row) => (
-                  <p key={row.label} className="mt-1 flex justify-between gap-3">
-                    <span className="text-slate-500">{row.label}</span>
-                    <span className="font-medium text-slate-900">{row.value}</span>
-                  </p>
-                ))}
-                {onSelect && (
-                  <button
-                    type="button"
-                    onClick={() => onSelect(marker)}
-                    className="mt-2 w-full rounded bg-brand-600 px-2 py-1 text-[11px] font-medium text-white"
-                  >
-                    Open details
-                  </button>
-                )}
-              </div>
-            </Popup>
-          </CircleMarker>
-        ))}
+        <TileLayer attribution={tiles.attribution} url={tiles.url} detectRetina keepBuffer={3} />
+        <ResponsiveMap />
+        <FocusMarker focus={focus} />
+
+        {plotted.map((marker) => {
+          const selected = Boolean(marker.selected);
+          return (
+            <CircleMarker
+              key={marker.id}
+              center={[marker.latitude, marker.longitude]}
+              radius={marker.radius ?? 8}
+              pathOptions={{
+                color: selected ? "#ffffff" : marker.color || "#0f766e",
+                fillColor: marker.color || "#0f766e",
+                fillOpacity: selected ? 0.95 : 0.66,
+                weight: selected ? 3 : 1.5,
+              }}
+              eventHandlers={{
+                ...(onSelect ? { click: () => onSelect(marker) } : {}),
+                mouseover: (e) => e.target.setStyle({ fillOpacity: 0.95, weight: 3 }),
+                mouseout: (e) =>
+                  e.target.setStyle({
+                    fillOpacity: selected ? 0.95 : 0.66,
+                    weight: selected ? 3 : 1.5,
+                  }),
+              }}
+            >
+              <Tooltip direction="top" offset={[0, -6]} opacity={1}>
+                <span className="text-xs font-medium">{marker.label}</span>
+              </Tooltip>
+              <Popup>
+                <div className="min-w-[190px] text-xs">
+                  <p className="text-sm font-semibold text-slate-900">{marker.label}</p>
+                  {marker.rows?.map((row) => (
+                    <p key={row.label} className="mt-1 flex justify-between gap-3">
+                      <span className="text-slate-500">{row.label}</span>
+                      <span className="font-medium text-slate-900">{row.value}</span>
+                    </p>
+                  ))}
+                  {onSelect && (
+                    <button
+                      type="button"
+                      onClick={() => onSelect(marker)}
+                      className="nir-interactive mt-2 w-full rounded bg-brand-600 px-2 py-1 text-[11px] font-medium text-white"
+                    >
+                      Open details
+                    </button>
+                  )}
+                </div>
+              </Popup>
+            </CircleMarker>
+          );
+        })}
       </MapContainer>
 
       {legend?.length > 0 && (
-        <div className="pointer-events-none absolute bottom-3 right-3 z-[400] rounded-lg border border-slate-200 bg-white/95 px-3 py-2 text-[11px] shadow-sm">
+        <div className="pointer-events-none absolute bottom-3 right-3 z-[400] rounded-lg border border-slate-200 bg-white/92 px-3 py-2 text-[11px] shadow-sm backdrop-blur-sm">
           {legend.map((item) => (
             <p key={item.label} className="flex items-center gap-2">
               <span

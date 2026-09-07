@@ -3,9 +3,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip as RTooltip,
   XAxis,
@@ -19,6 +16,7 @@ import {
   DataStatusBadge,
   Notes,
   ScoreBar,
+  Donut,
   StatCard,
   Tag,
   fmtCrore,
@@ -121,26 +119,16 @@ export default function Dashboard() {
 
               <div className="space-y-5">
                 <Card title="Risk profile" subtitle="Proposed projects by risk class">
-                  <ResponsiveContainer width="100%" height={180}>
-                    <PieChart>
-                      <Pie
-                        data={Object.entries(data.risk_distribution).map(([name, value]) => ({
-                          name,
-                          value,
-                        }))}
-                        dataKey="value"
-                        nameKey="name"
-                        innerRadius={45}
-                        outerRadius={72}
-                        paddingAngle={2}
-                      >
-                        {Object.keys(data.risk_distribution).map((key) => (
-                          <Cell key={key} fill={RISK_PIE_COLORS[key] || "#94a3b8"} />
-                        ))}
-                      </Pie>
-                      <RTooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <div className="flex justify-center py-1">
+                    <Donut
+                      ariaLabel="Proposed projects by risk class"
+                      data={Object.entries(data.risk_distribution).map(([name, value]) => ({
+                        name,
+                        value,
+                        color: RISK_PIE_COLORS[name] || "#94a3b8",
+                      }))}
+                    />
+                  </div>
                   <div className="mt-2 flex flex-wrap justify-center gap-3 text-xs">
                     {Object.entries(data.risk_distribution).map(([name, value]) => (
                       <span key={name} className="flex items-center gap-1.5">

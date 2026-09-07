@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip as RTooltip } from "recharts";
 import api from "../api/client";
 import {
   AsyncPanel,
   Card,
   DataStatusBadge,
+  Donut,
   Field,
   Notes,
   Tag,
@@ -110,26 +110,18 @@ export default function Cost() {
                   </div>
 
                   <div>
-                    <ResponsiveContainer width="100%" height={190}>
-                      <PieChart>
-                        <Pie
-                          data={Object.entries(cost.breakdown_cr).map(([name, value]) => ({
-                            name: name.replaceAll("_", " "),
-                            value,
-                          }))}
-                          dataKey="value"
-                          nameKey="name"
-                          innerRadius={40}
-                          outerRadius={70}
-                          paddingAngle={2}
-                        >
-                          {Object.keys(cost.breakdown_cr).map((key, i) => (
-                            <Cell key={key} fill={SLICE_COLORS[i % SLICE_COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <RTooltip formatter={(v) => fmtCrore(v)} />
-                      </PieChart>
-                    </ResponsiveContainer>
+                    <div className="flex justify-center">
+                      <Donut
+                        ariaLabel="Cost breakdown by component"
+                        size={140}
+                        thickness={20}
+                        data={Object.entries(cost.breakdown_cr).map(([name, value], i) => ({
+                          name: name.replaceAll("_", " "),
+                          value,
+                          color: SLICE_COLORS[i % SLICE_COLORS.length],
+                        }))}
+                      />
+                    </div>
                     <ul className="space-y-0.5 text-[11px]">
                       {Object.entries(cost.breakdown_cr).map(([name, value], i) => (
                         <li key={name} className="flex items-center justify-between gap-2">

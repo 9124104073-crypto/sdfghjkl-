@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { PageTransition } from "./motion";
 import api from "../api/client";
 import { DataModeToggle } from "./DataMode";
 import { useApi } from "./ui";
@@ -25,6 +26,7 @@ const DISCLAIMER =
   "NIRMAN AI is a decision-support prototype. Demonstration datasets and AI-generated estimates require validation against authoritative data, engineering assessment and statutory approvals before real-world use.";
 
 export default function Layout() {
+  const location = useLocation();
   const { data: health } = useApi(() => api.health(), []);
   const offline = health && health.status !== "ok";
 
@@ -78,7 +80,7 @@ export default function Layout() {
                   to={item.to}
                   end={item.end}
                   className={({ isActive }) =>
-                    `block whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                    `nir-row block whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition ${
                       isActive
                         ? "bg-brand-700 text-white"
                         : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -94,7 +96,9 @@ export default function Layout() {
       </header>
 
       <main className="mx-auto max-w-[1400px] px-5 py-6">
-        <Outlet />
+        <PageTransition routeKey={location.pathname}>
+          <Outlet />
+        </PageTransition>
       </main>
 
       <footer className="mx-auto max-w-[1400px] px-5 pb-8">
