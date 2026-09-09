@@ -134,6 +134,34 @@ class TimingMiddleware(BaseHTTPMiddleware):
         return response
 
 
+def _weak(value: str) -> str:
+    """Strip a weak-validator prefix, leaving the opaque tag itself."""
+    value = value.strip()
+    if value.startswith(("W/", "w/")):
+        value = value[2:]
+    return value
+
+
+def _if_none_match(header: str | None, etag: str) -> bool:
+    """Does this If-None-Match header match our tag?
+
+    RFC 7232 requires the *weak* comparison function here, and that is not
+    pedantry: a proxy that recompresses a response — Cloudflare does, on the
+    tunnelled demo link — downgrades the tag to W/"..." on the way out, and the
+    browser sends that weakened form back. Comparing strictly would then miss
+    every revalidation in exactly the deployment the caching was added for.
+
+    The header is a comma-separated list, and "*" matches any existing entity.
+    """
+    if not header:
+        return False
+    header = header.strip()
+    if header == "*":
+        return True
+    target = _weak(etag)
+    return any(_weak(candidate) == target for candidate in header.split(","))
+
+
 class ETagMiddleware(BaseHTTPMiddleware):
     """Add an ETag to cacheable GETs and answer repeat requests with 304.
 
@@ -160,7 +188,7 @@ class ETagMiddleware(BaseHTTPMiddleware):
         headers = dict(response.headers)
         headers["etag"] = etag
 
-        if request.headers.get("if-none-match") == etag:
+        if _if_none_match(request.headers.get("if-none-match"), etag):
             # 304 must not carry a body, and Content-Length would then lie.
             headers.pop("content-length", None)
             return Response(status_code=304, headers=headers)

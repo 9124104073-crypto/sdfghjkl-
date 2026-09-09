@@ -109,3 +109,28 @@ def test_metrics_window_is_bounded():
     row = next(r for r in m.snapshot()["routes"] if r["route"] == "GET /y")
     assert row["requests"] == 500  # the count is complete
     assert row["max_ms"] == 499.0  # but only the last 200 samples are held
+
+
+def test_weakened_etags_still_revalidate():
+    """A proxy that recompresses downgrades the tag to W/"..." on the way out.
+
+    RFC 7232 mandates weak comparison for If-None-Match, and without it every
+    revalidation behind such a proxy silently misses.
+    """
+    etag = client.get("/api/v1/dashboard").headers["etag"]
+
+    weak = client.get("/api/v1/dashboard", headers={"If-None-Match": f"W/{etag}"})
+    assert weak.status_code == 304
+
+
+def test_if_none_match_accepts_a_list_and_a_wildcard():
+    etag = client.get("/api/v1/dashboard").headers["etag"]
+
+    listed = client.get(
+        "/api/v1/dashboard",
+        headers={"If-None-Match": f'"something-else", {etag}'},
+    )
+    assert listed.status_code == 304
+
+    wildcard = client.get("/api/v1/dashboard", headers={"If-None-Match": "*"})
+    assert wildcard.status_code == 304
