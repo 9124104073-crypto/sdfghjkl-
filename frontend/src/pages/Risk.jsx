@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import api from "../api/client";
 import MapView, { RISK_COLORS } from "../components/MapView";
+import { RiskShell3D } from "../components/three/widgets3d";
 import {
   AsyncPanel,
   Card,
@@ -103,6 +104,9 @@ export default function Risk() {
                   className="lg:col-span-2"
                   actions={<Tag value={current.overall_level} />}
                 >
+                  {/* The shell tightens and agitates as exposure rises. */}
+                  <RiskShell3D score={current.overall_score} height={200} />
+
                   <div className="mb-3 flex items-baseline gap-2">
                     <span className="text-3xl font-semibold tabular-nums text-slate-900">
                       {current.overall_score}

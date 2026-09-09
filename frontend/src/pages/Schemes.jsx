@@ -1,5 +1,7 @@
 import { useState } from "react";
 import api from "../api/client";
+import { Bars3D } from "../components/three/widgets3d";
+import { Ticker } from "../components/Ticker";
 import { AsyncPanel, Card, DataStatusBadge, Field, Notes, Tag, selectClass, useApi } from "../components/ui";
 
 export default function Schemes() {
@@ -107,8 +109,30 @@ export default function Schemes() {
               )}
             </Card>
 
+            <Ticker
+              className="mt-5 rounded-lg border border-slate-200 bg-white py-2.5"
+              tone="light"
+              speed={46}
+              items={data.schemes.map((s) => ({ label: s.scheme_name }))}
+            />
+
+            <Card index={1} className="mt-5" title="Scheme uptake" subtitle="Proposed projects matched to each scheme">
+              <Bars3D
+                height={215}
+                data={Object.entries(
+                  recommendations.reduce((acc, r) => {
+                    acc[r.scheme_name] = (acc[r.scheme_name] || 0) + 1;
+                    return acc;
+                  }, {})
+                )
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 10)
+                  .map(([label, value]) => ({ label, value }))}
+              />
+            </Card>
+
             <div className="mt-5 grid gap-5 lg:grid-cols-5">
-              <Card index={1}
+              <Card index={2}
                 title={`Project mappings (${recommendations.length})`}
                 className="lg:col-span-3"
                 actions={<DataStatusBadge status="derived" />}

@@ -1,4 +1,6 @@
 import api from "../api/client";
+import { Ticker } from "../components/Ticker";
+import { Bars3D } from "../components/three/widgets3d";
 import { AsyncPanel, Card, DataStatusBadge, Tag, fmtNumber, useApi } from "../components/ui";
 
 export default function DataLineage() {
@@ -15,6 +17,18 @@ export default function DataLineage() {
           demonstration value is never mistaken for a verified government measurement.
         </p>
       </div>
+
+      {(sources?.data || []).length > 0 && (
+        <Ticker
+          className="rounded-lg border border-slate-200 bg-white py-2.5"
+          tone="light"
+          speed={42}
+          items={sources.data.map((d) => ({
+            label: d.dataset_name,
+            value: d.verification_status,
+          }))}
+        />
+      )}
 
       <AsyncPanel loading={loading} error={error} data={sources?.data} onRetry={refetch}>
         {lineage && (
@@ -54,7 +68,19 @@ export default function DataLineage() {
 
         <div className="mt-5 grid gap-5 lg:grid-cols-2">
           {sources && (
-            <Card index={1} title={`Data-source registry (${sources.data.length})`}>
+            <>
+            <Card index={1} title="Registry volume" subtitle="Records held per dataset">
+              <Bars3D
+                height={215}
+                data={[...sources.data]
+                  .filter((s) => s.record_count)
+                  .sort((a, b) => b.record_count - a.record_count)
+                  .slice(0, 10)
+                  .map((s) => ({ label: s.dataset_name, value: s.record_count }))}
+              />
+            </Card>
+
+            <Card index={2} title={`Data-source registry (${sources.data.length})`}>
               <div className="max-h-[520px] space-y-2 overflow-y-auto pr-1">
                 {sources.data.map((s) => (
                   <div key={s.dataset_name} className="rounded-lg border border-slate-200 px-3 py-2">
@@ -84,6 +110,7 @@ export default function DataLineage() {
                 ))}
               </div>
             </Card>
+            </>
           )}
 
           {providers && (

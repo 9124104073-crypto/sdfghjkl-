@@ -11,6 +11,7 @@ import {
 import { useSearchParams } from "react-router-dom";
 import api from "../api/client";
 import MapView, { TIER_COLORS } from "../components/MapView";
+import { Gauge3D, RiskShell3D } from "../components/three/widgets3d";
 import {
   AsyncPanel,
   Card,
@@ -411,6 +412,12 @@ export default function Recommendation() {
 
             {selected && (
               <Card index={3} title="Site profile" subtitle={selected.site.site_code}>
+                {/* Score and risk as paired 3D readouts before the detail. */}
+                <div className="mb-4 grid grid-cols-2 gap-2">
+                  <Gauge3D score={selected.score} label="suitability" height={175} />
+                  <RiskShell3D score={selected.risk.overall_score} height={175} label="risk" />
+                </div>
+
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
                   <Detail label="Zone" value={selected.site.zone} />
                   <Detail label="Land use" value={selected.site.land_use} />

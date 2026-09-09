@@ -4,6 +4,7 @@ import { C, body, heading } from "../theme";
 import { useDataMode } from "../components/DataMode";
 import { Panel, SectionHeader, StatusPill, Tag } from "../components/widgets";
 import { useApi } from "../components/ui";
+import { Engine3D } from "../components/three/widgets3d";
 
 /**
  * Settings — the live configuration of the running service.
@@ -35,6 +36,10 @@ export default function Settings() {
         title="Settings"
         subtitle="Workspace preferences, and the live state of the services behind them."
       />
+
+      <div className="hidden sm:block">
+        <Engine3D height={150} />
+      </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Panel className="p-5" index={0}>

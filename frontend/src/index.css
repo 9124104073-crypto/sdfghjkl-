@@ -266,3 +266,40 @@ tbody tr:hover { background: linear-gradient(90deg, rgba(20,184,166,.07), rgba(2
   50%      { transform: translateY(-3px); opacity: 1; }
 }
 
+
+/* ---------------------------------------------------------------- */
+/* Ticker — a seamless marquee. The track holds two identical copies  */
+/* of the content, so translating by exactly -50% lands the second    */
+/* copy where the first began and the loop has no visible seam.       */
+/* ---------------------------------------------------------------- */
+@keyframes nir-ticker { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+.nir-ticker-track {
+  display: flex;
+  width: max-content;
+  animation: nir-ticker var(--ticker-dur, 40s) linear infinite;
+  will-change: transform;
+}
+.nir-ticker-track.is-reverse { animation-direction: reverse; }
+.nir-ticker:hover .nir-ticker-track { animation-play-state: paused; }
+
+/* Caret for streaming Copilot answers. */
+@keyframes nir-caret { 0%, 45% { opacity: 1; } 55%, 100% { opacity: 0; } }
+.nir-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  animation: nir-caret 1s steps(1) infinite;
+}
+
+/* Message entrance for the chat thread. */
+@keyframes nir-msg-in { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
+.nir-msg { animation: nir-msg-in 380ms var(--ease-out) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nir-ticker-track { animation: none !important; }
+  .nir-caret { animation: none !important; }
+  .nir-msg { animation: none !important; }
+}

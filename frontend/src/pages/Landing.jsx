@@ -15,6 +15,8 @@ import { C, body, heading } from "../theme";
 import { Panel } from "../components/widgets";
 import { AnimatedNumber } from "../components/motion";
 import { useApi } from "../components/ui";
+import { Ticker } from "../components/Ticker";
+import { HeroField3D, Gauge3D, Bars3D } from "../components/three/widgets3d";
 
 const STAGES = [
   { name: "Data", detail: "Twelve registered datasets with full provenance" },
@@ -52,6 +54,23 @@ export default function Landing() {
   const navigate = useNavigate();
   const { data } = useApi(() => api.dashboard(), []);
   const m = data?.metrics;
+  // Column heights in the hero scene are the real top-site scores when the
+  // API has answered; before that the widget falls back to its own sample.
+  const heroPoints = (data?.top_sites || []).map((s) => s.score).filter(Number.isFinite);
+
+  const tickerItems = m
+    ? [
+        { label: "Sites assessed", value: m.sites_assessed },
+        { label: "Projects tracked", value: m.projects },
+        { label: "Indicative outlay", value: m.total_budget_cr, unit: " ₹cr" },
+        { label: "High-risk localities", value: m.high_risk_areas, tone: C.red },
+        { label: "MCDA factors", value: 9 },
+        { label: "Registered datasets", value: 12 },
+        { label: "Projection horizon", value: 2045 },
+        { label: "Scoring", value: "deterministic" },
+        { label: "Every figure carries its source" },
+      ]
+    : [];
 
 
   return (
@@ -67,6 +86,11 @@ export default function Landing() {
         </svg>
 
         <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-20 lg:px-10">
+          {/* The scene sits behind the copy on wide screens: real site scores
+              rendered as a rotating field, so the hero is showing the data. */}
+          <div className="pointer-events-none absolute right-0 top-10 hidden w-[46%] opacity-90 lg:block">
+            <HeroField3D height={430} points={heroPoints} />
+          </div>
           <div
             className="mb-6 inline-flex items-center gap-2 rounded-md px-3 py-1 text-xs"
             style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)" }}
@@ -125,6 +149,13 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Live figures ticker */}
+      {tickerItems.length > 0 && (
+        <div style={{ background: C.navy2, borderTop: `1px solid rgba(255,255,255,0.08)` }}>
+          <Ticker items={tickerItems} speed={55} className="py-3" tone="navy" />
+        </div>
+      )}
+
       {/* Pipeline */}
       <section className="mx-auto max-w-6xl px-6 py-20 lg:px-10">
         <div className="mb-12 text-center">
@@ -176,6 +207,35 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Portfolio at a glance, in three dimensions */}
+      {heroPoints.length > 0 && (
+        <section className="mx-auto max-w-6xl px-6 py-20 lg:px-10">
+          <div className="mb-10 text-center">
+            <h2 className="text-2xl font-semibold sm:text-3xl" style={{ color: C.navy, ...heading }}>
+              The current portfolio
+            </h2>
+            <p className="mx-auto mt-2 max-w-lg text-sm" style={{ color: C.slateSoft }}>
+              Live from the scoring engine — the arc and the bars are the same numbers the
+              ranking table uses.
+            </p>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            <Panel className="p-4" index={0}>
+              <Gauge3D score={heroPoints[0]} label="best site" sub="suitability score" height={210} />
+            </Panel>
+            <Panel className="p-4 lg:col-span-2" index={1}>
+              <Bars3D
+                height={210}
+                data={(data?.top_sites || []).slice(0, 8).map((s) => ({
+                  label: s.site_name,
+                  value: s.score,
+                }))}
+              />
+            </Panel>
+          </div>
+        </section>
+      )}
 
       {/* Why */}
       <section className="mx-auto max-w-6xl px-6 py-20 lg:px-10">

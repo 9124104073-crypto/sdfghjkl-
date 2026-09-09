@@ -1,7 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import api, { describeError } from "../api/client";
 import { TypingDots } from "../components/widgets";
+import { StreamingText } from "../components/StreamingText";
+import { Engine3D } from "../components/three/widgets3d";
 import { Card, DataStatusBadge, Tag, useApi } from "../components/ui";
 
 export default function Copilot() {
@@ -9,6 +11,13 @@ export default function Copilot() {
   const [thread, setThread] = useState([]);
   const [busy, setBusy] = useState(false);
   const inputRef = useRef(null);
+  const threadRef = useRef(null);
+
+  // Keep the newest turn in view as it streams in.
+  useEffect(() => {
+    const el = threadRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [thread, busy]);
 
   const { data: suggestions } = useApi(() => api.copilotSuggestions(), []);
 
@@ -41,6 +50,9 @@ export default function Copilot() {
 
       <div className="grid gap-5 lg:grid-cols-4">
         <Card title="Try asking" className="lg:col-span-1">
+          {/* Spins up while a question is in flight. */}
+          <Engine3D height={170} active={busy} />
+
           <ul className="space-y-1.5">
             {(suggestions?.data || []).map((s) => (
               <li key={s}>
@@ -62,7 +74,7 @@ export default function Copilot() {
         </Card>
 
         <Card className="lg:col-span-3" title="Conversation">
-          <div className="max-h-[520px] space-y-4 overflow-y-auto pr-1">
+          <div ref={threadRef} className="max-h-[520px] space-y-4 overflow-y-auto pr-1 scroll-smooth">
             {thread.length === 0 && (
               <p className="rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center text-xs text-slate-500">
                 Ask a question, or pick one of the suggestions.
@@ -72,7 +84,7 @@ export default function Copilot() {
             {thread.map((message, index) => {
               if (message.role === "user") {
                 return (
-                  <div key={index} className="flex justify-end">
+                  <div key={index} className="nir-msg flex justify-end">
                     <p className="max-w-[80%] rounded-lg rounded-br-sm bg-brand-700 px-3 py-2 text-sm text-white">
                       {message.text}
                     </p>
@@ -83,14 +95,14 @@ export default function Copilot() {
                 return (
                   <div
                     key={index}
-                    className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800"
+                    className="nir-msg rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800"
                   >
                     {message.text}
                   </div>
                 );
               }
               return (
-                <div key={index} className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+                <div key={index} className="nir-msg rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <DataStatusBadge status={message.data_status} />
                     {message.intent && <Tag value={message.intent.replaceAll("_", " ")} />}
@@ -104,7 +116,13 @@ export default function Copilot() {
                     )}
                   </div>
 
-                  <p className="text-sm leading-relaxed text-slate-800">{message.answer}</p>
+                  <p className="text-sm leading-relaxed text-slate-800">
+                    {index === thread.length - 1 ? (
+                      <StreamingText text={message.answer || ""} />
+                    ) : (
+                      message.answer
+                    )}
+                  </p>
 
                   {message.actions?.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -145,7 +163,12 @@ export default function Copilot() {
               );
             })}
 
-            {busy && <TypingDots />}
+            {busy && (
+              <div className="nir-msg flex items-center gap-2">
+                <TypingDots />
+                <ThinkingStatus />
+              </div>
+            )}
           </div>
 
           <form
@@ -173,5 +196,29 @@ export default function Copilot() {
         </Card>
       </div>
     </div>
+  );
+}
+
+/**
+ * Cycles through the stages the backend actually goes through, so the wait
+ * says something rather than just spinning.
+ */
+function ThinkingStatus() {
+  const STAGES = [
+    "Reading the question",
+    "Detecting intent",
+    "Querying the decision engines",
+    "Attaching sources",
+  ];
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setI((n) => Math.min(n + 1, STAGES.length - 1)), 900);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <span key={i} className="nir-msg text-[11px] text-slate-500">
+      {STAGES[i]}&hellip;
+    </span>
   );
 }

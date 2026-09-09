@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api, { describeError } from "../api/client";
+import { Engine3D } from "../components/three/widgets3d";
 import {
   AsyncPanel,
   Card,
@@ -54,12 +55,17 @@ export default function Knowledge() {
 
   return (
     <div className="space-y-5">
+      <div className="flex items-start justify-between gap-4">
       <div>
         <h1 className="text-lg font-semibold text-slate-900">Knowledge base &amp; activity</h1>
         <p className="text-sm text-slate-500">
           Semantic retrieval over NIRMAN AI's own methodology, scheme reference table and data
           registry — plus the record of what the platform has actually produced.
         </p>
+      </div>
+        <div className="hidden w-44 shrink-0 sm:block">
+          <Engine3D height={110} />
+        </div>
       </div>
 
       <AsyncPanel loading={loading} error={statsError} data={stats} onRetry={refetch}>

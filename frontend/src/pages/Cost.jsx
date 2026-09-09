@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../api/client";
+import { Bars3D } from "../components/three/widgets3d";
 import {
   AsyncPanel,
   Card,
@@ -110,6 +111,14 @@ export default function Cost() {
                   </div>
 
                   <div>
+                    <Bars3D
+                      height={190}
+                      data={Object.entries(cost.breakdown_cr).map(([name, value], i) => ({
+                        label: name.replaceAll("_", " "),
+                        value,
+                        color: SLICE_COLORS[i % SLICE_COLORS.length],
+                      }))}
+                    />
                     <div className="flex justify-center">
                       <Donut
                         ariaLabel="Cost breakdown by component"

@@ -4,6 +4,7 @@ import api from "../api/client";
 import { C, body, heading } from "../theme";
 import { KPICard, Panel, SectionHeader, StatusPill, Tag } from "../components/widgets";
 import { AsyncPanel, useApi } from "../components/ui";
+import { Engine3D } from "../components/three/widgets3d";
 
 /**
  * Planning Reports — the platform's own history.
@@ -35,6 +36,10 @@ export default function Reports() {
         title="Planning Reports"
         subtitle="Everything the platform has produced and been asked to do, read from the persisted history rather than a fixture list."
       />
+
+      <div className="hidden sm:block">
+        <Engine3D height={150} />
+      </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <KPICard index={0} label="AI outputs recorded" value={rows.length} icon={ScrollText} />

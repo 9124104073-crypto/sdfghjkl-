@@ -10,6 +10,8 @@ import {
 } from "recharts";
 import api from "../api/client";
 import MapView, { TIER_COLORS } from "../components/MapView";
+import { Ticker } from "../components/Ticker";
+import { Gauge3D, Bars3D } from "../components/three/widgets3d";
 import {
   AsyncPanel,
   Card,
@@ -66,6 +68,37 @@ export default function Dashboard() {
                 tone={data.metrics.sensor_alerts > 0 ? "warn" : "good"}
                 sub={`${data.metrics.sensors_online} online`}
               />
+            </div>
+
+            <Ticker
+              className="mt-5 rounded-lg border py-2.5"
+              tone="light"
+              speed={50}
+              items={[
+                { label: "Sites assessed", value: data.metrics.sites_assessed },
+                { label: "Projects", value: data.metrics.projects },
+                { label: "Outlay", value: data.metrics.total_budget_cr, unit: " ₹cr" },
+                { label: "High-risk localities", value: data.metrics.high_risk_areas },
+                ...data.top_sites.map((s) => ({ label: s.site_name, value: s.score.toFixed(1) })),
+              ]}
+            />
+
+            {/* The leading site as a 3D gauge, the shortlist as 3D bars —
+                same numbers as the table below, read at a glance. */}
+            <div className="mt-5 grid gap-5 lg:grid-cols-3">
+              <Card index={0} title="Leading site" subtitle={data.top_sites[0]?.site_name}>
+                <Gauge3D score={data.top_sites[0]?.score ?? 0} label="suitability" height={210} />
+              </Card>
+              <Card index={1} title="Shortlist" subtitle="Top candidates by score" className="lg:col-span-2">
+                <Bars3D
+                  height={210}
+                  data={data.top_sites.slice(0, 8).map((s) => ({
+                    label: s.site_name,
+                    value: s.score,
+                    color: TIER_COLORS[s.recommendation],
+                  }))}
+                />
+              </Card>
             </div>
 
             <div className="mt-5 grid gap-5 lg:grid-cols-3">

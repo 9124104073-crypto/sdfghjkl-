@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import api from "../api/client";
+import { Bars3D } from "../components/three/widgets3d";
 import { AsyncPanel, Card, DataStatusBadge, Notes, ScoreBar, Tag, useApi } from "../components/ui";
 
 const FACTORS = [
@@ -133,6 +134,20 @@ export default function Priority() {
             {data && (
               <>
                 <Card index={1}
+                  title="Priority ranking"
+                  subtitle="Computed score, highest first"
+                  actions={<DataStatusBadge status="derived" />}
+                >
+                  <Bars3D
+                    height={230}
+                    data={data.results.slice(0, 10).map((r) => ({
+                      label: r.project,
+                      value: r.computed_score,
+                    }))}
+                  />
+                </Card>
+
+                <Card index={2}
                   title="Sector distribution"
                   subtitle="Average published impact score per sector"
                   actions={<DataStatusBadge status="demo" />}

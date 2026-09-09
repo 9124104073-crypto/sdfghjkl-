@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/client";
+import { Bars3D } from "../components/three/widgets3d";
 import { VerifiedOnlyNotice, useDataMode } from "../components/DataMode";
 import {
   AsyncPanel,
@@ -173,8 +174,20 @@ export default function Explorer() {
           </div>
 
           <AsyncPanel loading={loading} error={error} data={sites} onRetry={refetch}>
+            {tab === "sites" && filtered.length > 0 && (
+              <Card index={1} className="mt-4" title="Published scores" subtitle="Top of the current filter">
+                <Bars3D
+                  height={210}
+                  data={filtered.slice(0, 10).map((s) => ({
+                    label: s.name,
+                    value: s.dataset.ai_score ?? 0,
+                  }))}
+                />
+              </Card>
+            )}
+
             {tab === "sites" && (
-              <Card index={1} className="mt-4" title="Candidate localities" actions={<DataStatusBadge status="demo" />}>
+              <Card index={2} className="mt-4" title="Candidate localities" actions={<DataStatusBadge status="demo" />}>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>

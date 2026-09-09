@@ -10,6 +10,8 @@ import {
   YAxis,
 } from "recharts";
 import api, { describeError } from "../api/client";
+import { Ticker } from "../components/Ticker";
+import { RiskShell3D } from "../components/three/widgets3d";
 import MapView from "../components/MapView";
 import {
   AsyncPanel,
@@ -59,6 +61,19 @@ export default function Iot() {
       <AsyncPanel loading={loading} error={error} data={devices} onRetry={refetch}>
         {data && (
           <>
+            {/* Fleet alarm load: the share of devices not reporting NORMAL. */}
+            <RiskShell3D
+              height={170}
+              label="fleet alarm load"
+              score={
+                data.summary.total
+                  ? Math.round(
+                      ((data.summary.WARNING + data.summary.CRITICAL) / data.summary.total) * 100
+                    )
+                  : 0
+              }
+            />
+
             <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
               <StatCard index={0} label="Devices" value={data.summary.total} />
               <StatCard index={1} label="Online" value={data.summary.online} tone="good" />
@@ -66,6 +81,17 @@ export default function Iot() {
               <StatCard index={3} label="Warning" value={data.summary.WARNING} tone="warn" />
               <StatCard index={4} label="Critical" value={data.summary.CRITICAL} tone="bad" />
             </div>
+
+            <Ticker
+              className="mt-5 rounded-lg border border-slate-200 bg-white py-2.5"
+              tone="light"
+              speed={40}
+              items={devices.map((d) => ({
+                label: `${d.device_id} · ${d.location}`,
+                value: d.status,
+                tone: d.status === "CRITICAL" ? "#DC2626" : d.status === "WARNING" ? "#F59E0B" : "#16A34A",
+              }))}
+            />
 
             <div className="mt-5 grid gap-5 lg:grid-cols-5">
               <Card index={0}

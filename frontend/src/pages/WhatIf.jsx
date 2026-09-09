@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../api/client";
+import { Bars3D } from "../components/three/widgets3d";
 import {
   AsyncPanel,
   Card,
@@ -165,6 +166,16 @@ export default function WhatIf() {
                       <Mover title="Biggest drop" row={data.movers.biggest_drop} tone="bad" />
                     </div>
                   )}
+
+                  {/* The ranking as solid geometry — re-weighting visibly
+                      reshapes it, which a table alone does not convey. */}
+                  <Bars3D
+                    height={220}
+                    data={data.results.slice(0, 10).map((r) => ({
+                      label: r.area,
+                      value: r.new_score,
+                    }))}
+                  />
 
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">

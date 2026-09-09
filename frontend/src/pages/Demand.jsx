@@ -13,6 +13,8 @@ import {
   YAxis,
 } from "recharts";
 import api from "../api/client";
+import { Bars3D } from "../components/three/widgets3d";
+import { Ticker } from "../components/Ticker";
 import { VerifiedOnlyNotice, useDataMode } from "../components/DataMode";
 import {
   AsyncPanel,
@@ -92,6 +94,11 @@ export default function Demand() {
     ? Object.entries(summary.totals).map(([year, v]) => ({ year, population: v }))
     : [];
 
+  const growthTicker = [...rows]
+    .sort((a, b) => b.growth_pct - a.growth_pct)
+    .slice(0, 12)
+    .map((r) => ({ label: r.location, value: `+${r.growth_pct.toFixed(1)}`, unit: "%" }));
+
   return (
     <div className="space-y-5">
       <div>
@@ -103,6 +110,10 @@ export default function Demand() {
       </div>
 
       <VerifiedOnlyNotice dataset="The population projection dataset" />
+
+      {growthTicker.length > 0 && (
+        <Ticker className="rounded-lg border border-slate-200 bg-white py-2.5" tone="light" speed={48} items={growthTicker} />
+      )}
 
       {!isVerifiedOnly && (
         <AsyncPanel loading={loading} error={error} data={rows} onRetry={refetch}>
@@ -158,7 +169,17 @@ export default function Demand() {
                   </ResponsiveContainer>
                 </Card>
 
-                <Card index={1} title="Growth priority" subtitle="How the sample is distributed">
+                <Card index={1} title="Fastest growth" subtitle="Percent change, 2026 to 2045">
+                  <Bars3D
+                    height={220}
+                    data={[...rows]
+                      .sort((a, b) => b.growth_pct - a.growth_pct)
+                      .slice(0, 10)
+                      .map((r) => ({ label: r.location, value: r.growth_pct }))}
+                  />
+                </Card>
+
+                <Card index={2} title="Growth priority" subtitle="How the sample is distributed">
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={distribution} margin={{ left: -20, right: 10, top: 8 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
