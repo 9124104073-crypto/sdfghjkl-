@@ -15,6 +15,7 @@ import { C, body, heading } from "../theme";
 import { Panel } from "../components/widgets";
 import { AnimatedNumber } from "../components/motion";
 import { useApi } from "../components/ui";
+import CityScape3D from "../components/CityScape3D";
 
 const STAGES = [
   { name: "Data", detail: "Twelve registered datasets with full provenance" },
@@ -51,7 +52,21 @@ const WHY = [
 export default function Landing() {
   const navigate = useNavigate();
   const { data } = useApi(() => api.dashboard(), []);
+  const { data: ranked } = useApi(
+    () => api.recommend({ infrastructure_type: "Hospital", limit: 40 }),
+    []
+  );
   const m = data?.metrics;
+
+  // Towers come from the live ranking, so the hero shows real scores.
+  const heroSites = (ranked?.results || []).map((r) => ({
+    id: r.site_id,
+    site_name: r.site_name,
+    latitude: r.site.latitude,
+    longitude: r.site.longitude,
+    score: r.score,
+    recommendation: r.recommendation,
+  }));
 
   return (
     <div style={{ background: C.bg, ...body }} className="min-h-screen w-full">
@@ -98,6 +113,12 @@ export default function Landing() {
             >
               See a site scored
             </button>
+          </div>
+
+          {/* The scene is the hero: real geometry, towers sized by the
+              engine's own score, so the pitch is the product working. */}
+          <div className="nir-reveal mt-12" style={{ animationDelay: "260ms" }}>
+            <CityScape3D sites={heroSites} height={380} />
           </div>
 
           {/* Live portfolio figures, not stock copy */}

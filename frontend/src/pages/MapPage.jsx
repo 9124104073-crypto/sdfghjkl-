@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/client";
 import MapView, { RISK_COLORS, TIER_COLORS } from "../components/MapView";
+import CityScape3D from "../components/CityScape3D";
 import { AsyncPanel, Card, DataStatusBadge, Notes, Tag, fmtNumber, useApi } from "../components/ui";
 
 const LAYER_OPTIONS = [
@@ -16,6 +17,7 @@ export default function MapPage() {
   const navigate = useNavigate();
   const [active, setActive] = useState(["sites", "risk"]);
   const [selected, setSelected] = useState(null);
+  const [view3d, setView3d] = useState(false);
 
   const { data: gis, loading, error, refetch } = useApi(() => api.gisLayers(), []);
   const { data: risk } = useApi(() => api.risk(), []);
@@ -108,7 +110,21 @@ export default function MapPage() {
         actions={<DataStatusBadge status="demo" />}
         subtitle="Toggle what appears on the map"
       >
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            data-view3d
+            onClick={() => setView3d((v) => !v)}
+            className="nir-interactive rounded-full border px-3 py-1 text-xs font-semibold"
+            style={
+              view3d
+                ? { background: "#0B1F33", borderColor: "#0B1F33", color: "#A3E635" }
+                : { background: "transparent", borderColor: "#E3E8E3", color: "#334155" }
+            }
+          >
+            {view3d ? "3D landscape" : "2D map"}
+          </button>
+          <span className="mr-1 h-4 w-px" style={{ background: "#E3E8E3" }} />
           {LAYER_OPTIONS.map((layer) => (
             <button
               key={layer.key}
@@ -130,7 +146,23 @@ export default function MapPage() {
         {gis && (
           <div className="grid gap-5 lg:grid-cols-4">
             <Card index={1} className="lg:col-span-3" title={`${markers.length} features plotted`}>
-              <MapView
+              {view3d ? (
+
+                <CityScape3D
+
+                  sites={gis.sites.map((x) => ({ id: x.id, site_name: x.name, latitude: x.latitude, longitude: x.longitude, score: x.dataset.ai_score, recommendation: x.dataset.recommendation }))}
+
+                  height={560}
+
+                  selectedId={selected?.siteId}
+
+                  onSelect={(site) => setSelected({ label: site.site_name, siteId: site.id, kind: "site", rows: [{ label: "Score", value: Number(site.score).toFixed(1) }, { label: "Tier", value: site.recommendation }] })}
+
+                />
+
+              ) : (
+
+                <MapView
                 height="560px"
                 markers={markers}
                 onSelect={setSelected}
@@ -142,6 +174,8 @@ export default function MapPage() {
                   { label: "School (reference)", color: "#2563eb" },
                 ]}
               />
+
+              )}
             </Card>
 
             <Card index={2} title="Selection" subtitle="Click any marker">
