@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   Bell,
   Compass,
+  Cpu,
   Database,
   FileStack,
   FolderClock,
@@ -17,6 +18,7 @@ import {
   Settings as SettingsIcon,
   ShieldAlert,
   Sliders,
+  Sparkles,
   TrendingUp,
   Wallet,
   X,
@@ -26,6 +28,7 @@ import { C, body, heading } from "../theme";
 import { PageTransition } from "./motion";
 import { StatusPill } from "./widgets";
 import { useApi } from "./ui";
+import { FloatingActions, ToastProvider, useToast } from "./uikit";
 
 const NAV_GROUPS = [
   {
@@ -184,6 +187,7 @@ function Sidebar({ open, setOpen }) {
 function Topbar({ title, setOpen, health }) {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const [focused, setFocused] = useState(false);
   const degraded = health && health.status !== "ok";
 
   return (
@@ -201,21 +205,32 @@ function Topbar({ title, setOpen, health }) {
       </div>
 
       <form
-        className="mx-4 hidden max-w-md flex-1 items-center md:flex"
+        className="mx-4 hidden flex-1 items-center md:flex"
+        style={{ maxWidth: focused ? "34rem" : "24rem", transition: "max-width 320ms var(--ease-out)" }}
         onSubmit={(e) => {
           e.preventDefault();
           if (q.trim()) navigate(`/copilot?q=${encodeURIComponent(q.trim())}`);
         }}
       >
-        <div className="flex w-full items-center gap-2 rounded-md px-3 py-2" style={{ background: C.card, border: `1px solid ${C.border}` }}>
-          <Search size={14} style={{ color: C.slateFaint }} />
+        <div
+          className="nir-search flex w-full items-center gap-2 rounded-md px-3 py-2"
+          style={{ background: C.card, border: `1px solid ${focused ? C.teal : C.border}` }}
+        >
+          <Search size={14} style={{ color: focused ? C.teal : C.slateFaint, transition: "color 200ms" }} />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
             placeholder="Ask NIRMAN anything…"
             className="w-full bg-transparent text-sm outline-none"
             style={{ color: C.slate, ...body }}
           />
+          {q.trim() && (
+            <span className="nir-msg rounded px-1.5 py-0.5 text-[10px] font-semibold" style={{ background: C.tealSoft, color: C.teal }}>
+              Enter
+            </span>
+          )}
         </div>
       </form>
 
@@ -246,6 +261,7 @@ export default function Layout() {
   const title = TITLES[location.pathname] || "NIRMAN AI";
 
   return (
+    <ToastProvider>
     <div className="flex min-h-screen" style={{ background: C.bg, ...body }}>
       <Sidebar open={open} setOpen={setOpen} />
       <div className="flex min-w-0 flex-1 flex-col">
@@ -263,6 +279,63 @@ export default function Layout() {
           </p>
         </footer>
       </div>
+
+      <QuickActions />
     </div>
+    </ToastProvider>
+  );
+}
+
+/**
+ * Quick actions.
+ *
+ * Lives inside the provider so it can raise a toast, and reaches the
+ * destinations a planner jumps to most often without going via the sidebar.
+ */
+function QuickActions() {
+  const navigate = useNavigate();
+  const notify = useToast();
+
+  return (
+    <FloatingActions
+      actions={[
+        {
+          label: "Ask the Copilot",
+          icon: MessageSquareText,
+          onSelect: () => navigate("/copilot"),
+        },
+        {
+          label: "Re-weight and re-rank",
+          icon: Sliders,
+          onSelect: () => navigate("/what-if"),
+        },
+        {
+          label: "Generate a DPR",
+          icon: FileStack,
+          onSelect: () => navigate("/dpr"),
+        },
+        {
+          label: "Check engine status",
+          icon: Cpu,
+          onSelect: async () => {
+            try {
+              const health = await api.health();
+              const ok = health?.status === "ok" || health?.status === "healthy";
+              notify({
+                tone: ok ? "success" : "warn",
+                title: ok ? "All engines responding" : "Backend degraded",
+                detail: `Reported status: ${health?.status ?? "unknown"}.`,
+              });
+            } catch {
+              notify({
+                tone: "error",
+                title: "Could not reach the backend",
+                detail: "The API did not respond. Engine output on screen may be stale.",
+              });
+            }
+          },
+        },
+      ]}
+    />
   );
 }

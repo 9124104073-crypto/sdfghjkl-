@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api, { describeError } from "../api/client";
 import { Engine3D } from "../components/three/widgets3d";
+import { GenerateButton, useToast } from "../components/uikit";
 import {
   AsyncPanel,
   Card,
@@ -16,6 +17,7 @@ export default function Dpr() {
   const [projectId, setProjectId] = useState(null);
   const [dpr, setDpr] = useState(null);
   const [busy, setBusy] = useState(false);
+  const notify = useToast();
   const [genError, setGenError] = useState(null);
 
   const { data: portfolio, loading, error, refetch } = useApi(() => api.projects(), []);
@@ -29,9 +31,17 @@ export default function Dpr() {
     setGenError(null);
     setDpr(null);
     try {
-      setDpr(await api.generateDpr(activeId, { include_explainability: true }));
+      const report = await api.generateDpr(activeId, { include_explainability: true });
+      setDpr(report);
+      notify({
+        tone: "success",
+        title: "DPR generated",
+        detail: `${active?.name || "Project"} — assembled from engine output, ready to download.`,
+      });
     } catch (err) {
-      setGenError(describeError(err));
+      const message = describeError(err);
+      setGenError(message);
+      notify({ tone: "error", title: "DPR generation failed", detail: message });
     } finally {
       setBusy(false);
     }
@@ -48,7 +58,7 @@ export default function Dpr() {
         </p>
       </div>
         <div className="hidden w-44 shrink-0 sm:block">
-          <Engine3D height={110} />
+          <Engine3D height={110} active={busy} />
         </div>
       </div>
 
@@ -85,14 +95,9 @@ export default function Dpr() {
                 subtitle={`${active.area} · ${active.project_code}`}
                 actions={
                   <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={generate}
-                      disabled={busy}
-                      className="rounded-md bg-brand-700 px-4 py-2 text-xs font-medium text-white hover:bg-brand-800 disabled:opacity-50"
-                    >
-                      {busy ? "Analysing..." : "Analyse & generate DPR"}
-                    </button>
+                    <GenerateButton onClick={generate} busy={busy} className="!px-4 !py-2 !text-xs">
+                      Analyse &amp; generate DPR
+                    </GenerateButton>
                     <a
                       href={api.dprDownloadUrl(activeId)}
                       className="rounded-md border border-brand-600 px-4 py-2 text-xs font-medium text-brand-700 hover:bg-brand-50"

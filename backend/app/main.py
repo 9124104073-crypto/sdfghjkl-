@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -17,6 +18,7 @@ from app.core.config import settings
 from app.core.constants import DISCLAIMER
 from app.core.database import Base, SessionLocal, database_healthy, engine
 from app.core.migrations import apply_post_create_migrations
+from app.core.observability import ETagMiddleware, TimingMiddleware, metrics
 from app.engines.weights import InvalidWeightsError
 from app.schemas import HealthResponse
 from app.seed import loader
@@ -66,6 +68,15 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Middleware runs outermost-last, so the order below means:
+# timing wraps everything (and therefore measures compression too), gzip
+# compresses what the ETag layer produced, and the ETag is computed over the
+# uncompressed body — which is what makes it stable across clients that do and
+# do not accept gzip.
+app.add_middleware(ETagMiddleware)
+app.add_middleware(GZipMiddleware, minimum_size=1024)
+app.add_middleware(TimingMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
@@ -109,6 +120,23 @@ def health() -> HealthResponse:
         seeded=seeded,
         record_counts=counts,
     )
+
+
+@app.get("/health/metrics", tags=["System"])
+def health_metrics() -> dict:
+    """Per-route request counts and latency percentiles for this process.
+
+    In-memory and reset on restart: this reports how the running service is
+    behaving, not a historical record.
+    """
+    return {
+        "data_status": "derived",
+        "data": metrics.snapshot(),
+        "notes": [
+            "Latency is measured inside the application and excludes network time.",
+            "Samples are a rolling window per route, held in memory only.",
+        ],
+    }
 
 
 def _service_metadata() -> dict[str, str]:

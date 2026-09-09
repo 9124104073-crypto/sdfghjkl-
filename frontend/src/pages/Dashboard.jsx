@@ -12,6 +12,7 @@ import api from "../api/client";
 import MapView, { TIER_COLORS } from "../components/MapView";
 import { Ticker } from "../components/Ticker";
 import { Gauge3D, Bars3D } from "../components/three/widgets3d";
+import { ProgressRing } from "../components/uikit";
 import {
   AsyncPanel,
   Card,
@@ -89,7 +90,18 @@ export default function Dashboard() {
               <Card index={0} title="Leading site" subtitle={data.top_sites[0]?.site_name}>
                 <Gauge3D score={data.top_sites[0]?.score ?? 0} label="suitability" height={210} />
               </Card>
-              <Card index={1} title="Shortlist" subtitle="Top candidates by score" className="lg:col-span-2">
+              <Card index={1} title="Portfolio counters" subtitle="Rings draw to the live value" className="lg:col-span-2">
+                <div className="flex flex-wrap items-start justify-around gap-4 py-2">
+                  <ProgressRing value={data.metrics.sites_assessed} max={40} label="Sites assessed" />
+                  <ProgressRing value={data.metrics.recommended_sites} max={data.metrics.sites_assessed || 40} label="Recommended" />
+                  <ProgressRing value={data.metrics.high_risk_areas} max={data.metrics.sites_assessed || 40} label="High risk" tone="#DC2626" />
+                  <ProgressRing value={data.metrics.sensors_online} max={Math.max(data.metrics.sensors_online, 8)} label="Sensors online" />
+                </div>
+              </Card>
+            </div>
+
+            <div className="mt-5 grid gap-5 lg:grid-cols-3">
+              <Card index={0} title="Shortlist" subtitle="Top candidates by score" className="lg:col-span-3">
                 <Bars3D
                   height={210}
                   data={data.top_sites.slice(0, 8).map((s) => ({
