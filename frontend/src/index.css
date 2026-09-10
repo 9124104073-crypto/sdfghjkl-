@@ -235,6 +235,10 @@ tbody tr:hover { background: linear-gradient(90deg, rgba(20,184,166,.07), rgba(2
 @keyframes nir-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .bar-grow { transform-origin: left center; animation: nir-grow var(--dur-slow) var(--ease-out) both; }
 
+/* Data bars animate once, then hold still so comparisons remain easy to read. */
+@keyframes nir-data-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.nir-data-bar { transform-origin: left center; animation: nir-data-bar 620ms var(--ease-out) both; }
+
 /* Buttons get a press ripple via a pseudo-element scale. */
 .btn-press { position: relative; overflow: hidden; }
 .btn-press::after {
@@ -257,6 +261,7 @@ tbody tr:hover { background: linear-gradient(90deg, rgba(20,184,166,.07), rgba(2
 @media (prefers-reduced-motion: reduce) {
   body::before { animation: none !important; }
   .bar-grow { animation: none !important; }
+  .nir-data-bar { animation: none !important; }
   .nav-link::after { transition: none !important; }
 }
 
@@ -298,10 +303,14 @@ tbody tr:hover { background: linear-gradient(90deg, rgba(20,184,166,.07), rgba(2
 @keyframes nir-msg-in { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
 .nir-msg { animation: nir-msg-in 380ms var(--ease-out) both; }
 
+@keyframes nir-copilot-thinking { 50% { transform: scale(1.06); background: #0B1F33; } }
+.nir-copilot-thinking { animation: nir-copilot-thinking 900ms var(--ease-inout) infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   .nir-ticker-track { animation: none !important; }
   .nir-caret { animation: none !important; }
   .nir-msg { animation: none !important; }
+  .nir-copilot-thinking { animation: none !important; }
 }
 
 /* ================================================================== */

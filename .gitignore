@@ -27,3 +27,6 @@ dpr_sample.pdf
 
 # Local tooling (tunnel binary, etc.)
 .tools/
+
+# Local preview output
+*.log

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/client";
 import MapView, { RISK_COLORS, TIER_COLORS } from "../components/MapView";
 import CityScape3D from "../components/CityScape3D";
+import SitePreview3D from "../components/SitePreview3D";
 import { AsyncPanel, Card, DataStatusBadge, Notes, Tag, fmtNumber, useApi } from "../components/ui";
 
 const LAYER_OPTIONS = [
@@ -42,6 +43,7 @@ export default function MapPage() {
           radius: 8,
           kind: "site",
           rows: [
+            { label: "Score", value: Number(s.dataset.ai_score).toFixed(1) },
             { label: "Site code", value: s.site_code },
             { label: "Population (5 km)", value: fmtNumber(s.population_catchment_5km) },
             { label: "Flood risk", value: s.flood_risk },
@@ -191,6 +193,13 @@ export default function MapPage() {
                       </div>
                     ))}
                   </dl>
+                  {selected.siteId && (
+                    <div className="mt-4">
+                      <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Street context</p>
+                      <SitePreview3D score={Number(selected.rows?.find((row) => row.label === "Score")?.value) || 0} />
+                      <p className="mt-2 text-[11px] leading-relaxed text-slate-500">A simplified planning context for this selected location. Use the recommendation view for the evidence behind the score.</p>
+                    </div>
+                  )}
                   {selected.siteId && (
                     <button
                       type="button"

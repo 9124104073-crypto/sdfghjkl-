@@ -5,6 +5,8 @@ import {
   Compass,
   Cpu,
   Database,
+  House,
+  LogOut,
   FileStack,
   FolderClock,
   GitCompare,
@@ -23,6 +25,7 @@ import {
   Wallet,
   X,
 } from "lucide-react";
+import { useAuth } from "./Auth";
 import api from "../api/client";
 import { C, body, heading } from "../theme";
 import { PageTransition } from "./motion";
@@ -90,6 +93,18 @@ const TITLES = {
 };
 
 function Sidebar({ open, setOpen }) {
+  const navigate = useNavigate();
+  const { role, isAdmin, signOut } = useAuth();
+  const groups = NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => isAdmin || !["/knowledge", "/data"].includes(item.to)),
+  }));
+
+  function leaveWorkspace() {
+    signOut();
+    navigate("/", { replace: true });
+  }
+
   return (
     <>
       {open && (
@@ -123,7 +138,7 @@ function Sidebar({ open, setOpen }) {
           </div>
 
           <nav className="mt-1 flex flex-col gap-4 px-3 pb-4">
-            {NAV_GROUPS.map((g) => (
+            {groups.map((g) => (
               <div key={g.group} className="flex flex-col gap-0.5">
                 <div
                   className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.09em]"
@@ -154,6 +169,10 @@ function Sidebar({ open, setOpen }) {
         </div>
 
         <div className="flex flex-col gap-0.5 px-3 pb-5">
+          <NavLink to="/" onClick={() => setOpen(false)} className="nir-row flex items-center gap-3 rounded-md px-3 py-2.5 text-sm" style={{ color: "rgba(255,255,255,0.62)", ...body }}>
+            <House size={16} strokeWidth={1.75} /> Back to welcome
+          </NavLink>
+          {isAdmin && (
           <NavLink
             to="/settings"
             onClick={() => setOpen(false)}
@@ -166,18 +185,22 @@ function Sidebar({ open, setOpen }) {
           >
             <SettingsIcon size={16} strokeWidth={1.75} /> Settings
           </NavLink>
+          )}
           <div className="mt-1 flex items-center gap-2.5 rounded-md px-3 py-3" style={{ background: "rgba(255,255,255,0.06)" }}>
             <div
               className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold"
               style={{ background: C.teal, color: "#fff", ...heading }}
             >
-              P
+              {role === "admin" ? "A" : "C"}
             </div>
             <div className="leading-tight">
-              <div className="text-xs font-medium text-white" style={body}>Planner Desk</div>
-              <div className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>Urban Dev. Dept.</div>
+              <div className="text-xs font-medium text-white" style={body}>{isAdmin ? "Administrator" : "Client workspace"}</div>
+              <div className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>Demo access</div>
             </div>
           </div>
+          <button type="button" onClick={leaveWorkspace} className="nir-row mt-1 flex items-center gap-3 rounded-md px-3 py-2.5 text-sm" style={{ color: "rgba(255,255,255,0.62)", ...body }}>
+            <LogOut size={16} strokeWidth={1.75} /> Log out
+          </button>
         </div>
       </aside>
     </>
@@ -186,6 +209,7 @@ function Sidebar({ open, setOpen }) {
 
 function Topbar({ title, setOpen, health }) {
   const navigate = useNavigate();
+  const { role } = useAuth();
   const [q, setQ] = useState("");
   const [focused, setFocused] = useState(false);
   const degraded = health && health.status !== "ok";
@@ -243,7 +267,7 @@ function Topbar({ title, setOpen, health }) {
           className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold"
           style={{ background: C.navy, color: "#fff", ...heading }}
         >
-          P
+          {role === "admin" ? "A" : "C"}
         </div>
       </div>
     </div>

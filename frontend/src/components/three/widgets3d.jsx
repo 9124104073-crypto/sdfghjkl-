@@ -1,6 +1,7 @@
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { C, toneForScore } from "../../theme";
 import { easeOutBack, easeOutExpo, useThreeScene } from "./useThreeScene";
+import { usePrefersReducedMotion } from "../motion";
 
 /**
  * 3D widgets.
@@ -85,103 +86,32 @@ function physical(THREE, track, colour, { emissive = 0.14, rough = 0.28, metal =
 /* ------------------------------------------------------------------ */
 export function Gauge3D({ score = 0, label, sub, height = 200, tone }) {
   const colour = tone || toneForScore(score);
-
-  const { mountRef } = useThreeScene(
-    ({ scene, camera, THREE, track, reduced }) => {
-      camera.position.set(0, 0.9, 3.35);
-      camera.lookAt(0, -0.02, 0);
-
-      addStudioLights(scene, THREE, { target: [0, 0, 0] });
-      addShadowFloor(scene, THREE, track, -1.35);
-
-      const group = new THREE.Group();
-      scene.add(group);
-
-      // Unfilled remainder of the scale, in a satin finish so the lit value
-      // arc reads against it.
-      const trackRing = new THREE.Mesh(
-        track(new THREE.TorusGeometry(1, 0.085, 24, 140, Math.PI * 1.5)),
-        track(
-          new THREE.MeshPhysicalMaterial({
-            color: 0xdfe6e4,
-            roughness: 0.62,
-            metalness: 0.15,
-            clearcoat: 0.4,
-            envMapIntensity: 0.8,
-          })
-        )
-      );
-      trackRing.rotation.z = Math.PI * 0.75;
-      trackRing.castShadow = true;
-      trackRing.receiveShadow = true;
-      group.add(trackRing);
-
-      const valueMat = physical(THREE, track, colour, { emissive: 0.3, rough: 0.16, metal: 0.7 });
-
-      // The arc is rebuilt as it grows; the tip cap rides its leading edge so
-      // the sweep ends in a rounded terminal rather than a cut torus.
-      let arc = null;
-      const tip = new THREE.Mesh(track(new THREE.SphereGeometry(0.098, 24, 24)), valueMat);
-      tip.castShadow = true;
-      group.add(tip);
-
-      const START = Math.PI * 0.75;
-      const SWEEP = Math.PI * 1.5;
-      const rebuild = (frac) => {
-        const sweep = Math.max(0.0001, SWEEP * frac);
-        if (arc) {
-          group.remove(arc);
-          arc.geometry.dispose();
-        }
-        arc = new THREE.Mesh(new THREE.TorusGeometry(1, 0.098, 24, 160, sweep), valueMat);
-        arc.rotation.z = START;
-        arc.castShadow = true;
-        arc.receiveShadow = true;
-        group.add(arc);
-        const a = START + sweep;
-        tip.position.set(Math.cos(a), Math.sin(a), 0);
-      };
-      rebuild(reduced ? score / 100 : 0);
-
-      // A faint glow disc behind the arc, so the emissive colour spills the
-      // way a real lit surface would.
-      const glow = new THREE.Mesh(
-        track(new THREE.CircleGeometry(1.35, 48)),
-        track(new THREE.MeshBasicMaterial({ color: colour, transparent: true, opacity: 0.06 }))
-      );
-      glow.position.z = -0.35;
-      group.add(glow);
-
-      let lastFrac = -1;
-      return (t) => {
-        const p = reduced ? 1 : Math.min(1, t / 1.25);
-        const frac = (score / 100) * easeOutExpo(p);
-        if (Math.abs(frac - lastFrac) > 0.003) {
-          rebuild(frac);
-          lastFrac = frac;
-        }
-        if (!reduced) {
-          // A slow parallax tilt rather than a spin: enough for the clearcoat
-          // highlight to travel, not enough to distract from the number.
-          group.rotation.y = Math.sin(t * 0.36) * 0.18;
-          group.rotation.x = Math.sin(t * 0.27) * 0.06;
-          glow.material.opacity = 0.05 + Math.sin(t * 1.1) * 0.02;
-        }
-      };
-    },
-    [score, colour],
-    { height }
-  );
+  const reduced = usePrefersReducedMotion();
+  const safeScore = Math.max(0, Math.min(100, Number(score) || 0));
+  const size = Math.min(height - 12, 176);
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - safeScore / 100);
 
   return (
-    <div className="relative" style={{ height }}>
-      <div ref={mountRef} className="h-full w-full" />
+    <div className="relative flex w-full items-center justify-center" style={{ height }}>
+      <svg width={size} height={size} viewBox="0 0 100 100" role="img" aria-label={`${label || "Score"}: ${safeScore} out of 100`}>
+        <defs>
+          <linearGradient id={`score-${colour.replace("#", "")}`} x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stopColor={colour} stopOpacity="0.72" />
+            <stop offset="1" stopColor={colour} />
+          </linearGradient>
+        </defs>
+        <circle cx="50" cy="50" r={radius} fill="none" stroke="#E3E8E3" strokeWidth="7" />
+        <circle cx="50" cy="50" r={radius} fill="none" stroke={`url(#score-${colour.replace("#", "")})`} strokeWidth="7" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} transform="rotate(-90 50 50)" style={{ transition: reduced ? "none" : "stroke-dashoffset 900ms cubic-bezier(.22,1,.36,1)" }} />
+        <circle cx="50" cy="50" r="31" fill="#FFFFFF" stroke="#F0F4F1" />
+      </svg>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         <span
           className="tabular-nums"
           style={{ fontSize: 30, fontWeight: 700, color: C.navy, fontFamily: "'Manrope', sans-serif" }}
         >
-          {Number(score).toFixed(score % 1 === 0 ? 0 : 1)}
+          {safeScore.toFixed(safeScore % 1 === 0 ? 0 : 1)}
         </span>
         {label && (
           <span className="mt-0.5 text-[11px] font-medium" style={{ color: C.slateSoft }}>
@@ -203,68 +133,30 @@ export function Gauge3D({ score = 0, label, sub, height = 200, tone }) {
 /* ------------------------------------------------------------------ */
 export function Bars3D({ data = [], height = 240, maxBars = 12 }) {
   const rows = data.slice(0, maxBars);
-
-  const { mountRef } = useThreeScene(
-    ({ scene, camera, THREE, track, reduced }) => {
-      camera.position.set(0.4, 2.3, 4.3);
-      camera.lookAt(0, 0.45, 0);
-
-      addStudioLights(scene, THREE, { target: [0, 0.5, 0] });
-      addShadowFloor(scene, THREE, track, 0);
-
-      const max = Math.max(...rows.map((r) => r.value), 1);
-      const span = 4.4;
-      const step = rows.length > 1 ? span / rows.length : span;
-      const w = step * 0.58;
-
-      // Unit-height rounded box, scaled per bar. The bevel is what lets the
-      // key light lay a highlight along each edge.
-      const barGeo = track(new RoundedBoxGeometry(w, 1, w, 3, Math.min(w * 0.16, 0.05)));
-
-      const plate = new THREE.Mesh(
-        track(new RoundedBoxGeometry(span + 0.55, 0.08, 1.35, 3, 0.03)),
-        track(
-          new THREE.MeshPhysicalMaterial({
-            color: 0xeef2f0,
-            roughness: 0.55,
-            metalness: 0.08,
-            clearcoat: 0.5,
-          })
-        )
-      );
-      plate.position.y = -0.04;
-      plate.receiveShadow = true;
-      scene.add(plate);
-
-      const bars = rows.map((r, i) => {
-        const colour = new THREE.Color(r.color || toneForScore((r.value / max) * 100));
-        const mesh = new THREE.Mesh(barGeo, physical(THREE, track, colour, { emissive: 0.12 }));
-        mesh.position.x = -span / 2 + step * (i + 0.5);
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        mesh.scale.y = 0.001;
-        scene.add(mesh);
-        return { mesh, target: Math.max(0.08, (r.value / max) * 2.05), order: i };
-      });
-
-      return (t) => {
-        bars.forEach(({ mesh, target, order }) => {
-          // Staggered, with a slight overshoot at the top of the rise.
-          const p = reduced ? 1 : Math.max(0, Math.min(1, (t - order * 0.06) / 0.95));
-          const h = Math.max(0.001, target * (p >= 1 ? 1 : easeOutBack(p)));
-          mesh.scale.y = h;
-          mesh.position.y = h / 2;
-        });
-        if (!reduced) scene.rotation.y = Math.sin(t * 0.2) * 0.17;
-      };
-    },
-    [JSON.stringify(rows)],
-    { height }
-  );
+  const max = Math.max(...rows.map((row) => Number(row.value) || 0), 1);
+  const scale = Math.ceil(max / 10) * 10;
 
   return (
-    <div style={{ height }}>
-      <div ref={mountRef} className="h-full w-full" />
+    <div className="flex flex-col justify-center gap-2 overflow-y-auto pr-1" style={{ height }} aria-label="Ranked comparison chart">
+      <div className="grid grid-cols-[minmax(84px,1.2fr)_minmax(110px,3fr)_46px] gap-3 text-[10px] font-medium uppercase tracking-wide" style={{ color: C.slateFaint }}>
+        <span>Location</span><span>Score scale 0–{scale}</span><span className="text-right">Value</span>
+      </div>
+      {rows.map((row, index) => {
+        const value = Number(row.value) || 0;
+        const width = `${Math.max(2, Math.min(100, (value / scale) * 100))}%`;
+        const colour = row.color || toneForScore((value / scale) * 100);
+        return (
+          <div key={`${row.label}-${index}`} className="grid grid-cols-[minmax(84px,1.2fr)_minmax(110px,3fr)_46px] items-center gap-3">
+            <span className="truncate text-xs font-medium" title={row.label} style={{ color: C.slate }}>{index + 1}. {row.label}</span>
+            <div className="h-7 overflow-hidden rounded-sm" style={{ background: "#EEF3F0" }}>
+              <div className="nir-data-bar flex h-full items-center justify-end rounded-sm px-2 text-[10px] font-semibold text-white" style={{ width, minWidth: "2rem", background: colour, animationDelay: `${index * 55}ms` }}>
+                {Math.round((value / scale) * 100)}%
+              </div>
+            </div>
+            <span className="text-right text-xs font-semibold tabular-nums" style={{ color: C.navy }}>{value.toFixed(value % 1 === 0 ? 0 : 1)}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }

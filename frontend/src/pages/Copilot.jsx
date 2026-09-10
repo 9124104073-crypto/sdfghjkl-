@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { BotMessageSquare, Sparkles } from "lucide-react";
 import api, { describeError } from "../api/client";
 import { TypingDots } from "../components/widgets";
 import { StreamingText } from "../components/StreamingText";
-import { Engine3D } from "../components/three/widgets3d";
 import { Card, DataStatusBadge, Tag, useApi } from "../components/ui";
 
 export default function Copilot() {
@@ -50,8 +50,16 @@ export default function Copilot() {
 
       <div className="grid gap-5 lg:grid-cols-4">
         <Card title="Try asking" className="lg:col-span-1">
-          {/* Spins up while a question is in flight. */}
-          <Engine3D height={170} active={busy} />
+          <div className="mb-5 flex items-center gap-3 rounded-md border border-brand-100 bg-brand-50 p-3">
+            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${busy ? "nir-copilot-thinking" : ""}`} style={{ background: "#0F766E", color: "#fff" }}>
+              <BotMessageSquare size={22} />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-900">NIRMAN Copilot</p>
+              <p className="mt-0.5 text-[11px] leading-snug text-slate-600">Clear answers from the planning data, with sources attached.</p>
+            </div>
+            <Sparkles className="ml-auto" size={16} style={{ color: "#0F766E" }} />
+          </div>
 
           <ul className="space-y-1.5">
             {(suggestions?.data || []).map((s) => (
