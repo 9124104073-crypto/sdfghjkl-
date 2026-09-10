@@ -45,10 +45,10 @@ export default function App() {
             <Route path="schemes" element={<Schemes />} />
             <Route path="dpr" element={<Dpr />} />
             <Route path="copilot" element={<Copilot />} />
-            <Route path="iot" element={<Iot />} />
+            <Route path="iot" element={<RequireAuth adminOnly><Iot /></RequireAuth>} />
             <Route path="knowledge" element={<RequireAuth adminOnly><Knowledge /></RequireAuth>} />
             <Route path="data" element={<RequireAuth adminOnly><DataLineage /></RequireAuth>} />
-            <Route path="reports" element={<Reports />} />
+            <Route path="reports" element={<RequireAuth adminOnly><Reports /></RequireAuth>} />
             <Route path="settings" element={<RequireAuth adminOnly><Settings /></RequireAuth>} />
           </Route>
 

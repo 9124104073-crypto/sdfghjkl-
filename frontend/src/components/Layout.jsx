@@ -97,8 +97,10 @@ function Sidebar({ open, setOpen }) {
   const { role, isAdmin, signOut } = useAuth();
   const groups = NAV_GROUPS.map((group) => ({
     ...group,
-    items: group.items.filter((item) => isAdmin || !["/knowledge", "/data"].includes(item.to)),
-  }));
+    items: group.items.filter(
+      (item) => isAdmin || !["/iot", "/reports", "/knowledge", "/data"].includes(item.to)
+    ),
+  })).filter((group) => group.items.length > 0);
 
   function leaveWorkspace() {
     signOut();
