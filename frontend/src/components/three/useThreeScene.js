@@ -63,6 +63,12 @@ export function useThreeScene(
     }
     mount.appendChild(renderer.domElement);
     renderer.domElement.style.display = "block";
+    // `setSize(..., false)` intentionally leaves CSS sizing alone. Without
+    // explicit dimensions the canvas can retain an intrinsic width that is
+    // wider than its responsive host, separating visual overlays from the
+    // Three scene they describe.
+    renderer.domElement.style.width = "100%";
+    renderer.domElement.style.height = "100%";
 
     const scene = new THREE.Scene();
     if (background !== null) scene.background = new THREE.Color(background);
