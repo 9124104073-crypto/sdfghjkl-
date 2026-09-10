@@ -15,6 +15,7 @@ from app.models.planning import (
     WhatIfParameter,
 )
 from app.models.registry import AuditLog, DataSource
+from app.models.users import AppUser
 from app.models.spatial import (
     InfrastructureAsset,
     InfrastructureGap,
@@ -28,6 +29,7 @@ from app.models.spatial import (
 __all__ = [
     "AiRecommendation",
     "AuditLog",
+    "AppUser",
     "DataSource",
     "Document",
     "DocumentChunk",

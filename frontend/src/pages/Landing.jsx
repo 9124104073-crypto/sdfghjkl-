@@ -100,7 +100,7 @@ export default function Landing() {
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <button
               type="button"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/login")}
               className="btn-press nir-interactive flex items-center gap-2 rounded-md px-5 py-3 text-sm font-semibold"
               style={{ background: C.lime, color: C.navy }}
             >
@@ -221,7 +221,7 @@ export default function Landing() {
         </h2>
         <button
           type="button"
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/login")}
           className="btn-press nir-interactive mt-8 rounded-md px-6 py-3 text-sm font-semibold"
           style={{ background: C.lime, color: C.navy }}
         >

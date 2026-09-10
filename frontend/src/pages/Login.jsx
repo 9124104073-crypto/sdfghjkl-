@@ -1,58 +1,86 @@
-import { Building2, ShieldCheck, ArrowRight } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { ArrowLeft, ArrowRight, Building2, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import api, { describeError } from "../api/client";
 import { useAuth } from "../components/Auth";
 import { C, heading } from "../theme";
 
 const ROLES = [
-  {
-    key: "client",
-    title: "Client demo",
-    detail: "Explore sites, compare options and ask the planning Copilot.",
-    icon: Building2,
-  },
-  {
-    key: "admin",
-    title: "Administrator demo",
-    detail: "Includes data sources, knowledge records and operational tools.",
-    icon: ShieldCheck,
-  },
+  { key: "client", title: "Client demo", detail: "Explore sites, compare options and ask the planning Copilot.", icon: Building2 },
+  { key: "admin", title: "Administrator demo", detail: "Includes data sources, knowledge records and operational tools.", icon: ShieldCheck },
 ];
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { signIn } = useAuth();
+  const [mode, setMode] = useState("sign-in");
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const destination = location.state?.from?.pathname || "/dashboard";
 
   function enter(role) {
-    signIn(role);
+    signIn({ name: role === "admin" ? "Administrator" : "Demo client", email: "demo@nirman.ai", role });
     navigate(destination, { replace: true });
+  }
+
+  async function submit(event) {
+    event.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const response = mode === "register" ? await api.register(form) : await api.login(form);
+      signIn(response.user);
+      navigate(destination, { replace: true });
+    } catch (err) {
+      setError(describeError(err));
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
     <main className="min-h-screen px-5 py-10 sm:flex sm:items-center sm:justify-center" style={{ background: C.bg }}>
-      <section className="w-full max-w-3xl">
-        <div className="mb-10 text-center">
-          <div className="mx-auto mb-5 flex h-11 w-11 items-center justify-center rounded-md" style={{ background: C.navy }}>
-            <span className="text-lg font-extrabold" style={{ color: C.lime, ...heading }}>N</span>
+      <section className="w-full max-w-4xl">
+        <Link to="/" className="mb-8 inline-flex items-center gap-2 text-xs font-semibold" style={{ color: C.teal }}><ArrowLeft size={14} /> Back to welcome</Link>
+        <div className="grid overflow-hidden rounded-md border md:grid-cols-[1.05fr_.95fr]" style={{ background: C.card, borderColor: C.border }}>
+          <div className="p-7 sm:p-10" style={{ background: C.navy }}>
+            <div className="flex h-11 w-11 items-center justify-center rounded-md" style={{ background: C.lime }}><span className="text-lg font-extrabold" style={{ color: C.navy, ...heading }}>N</span></div>
+            <p className="mt-9 text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: C.lime }}>NIRMAN AI</p>
+            <h1 className="mt-3 text-3xl font-semibold text-white" style={heading}>Planning, made clear.</h1>
+            <p className="mt-4 max-w-sm text-sm leading-relaxed" style={{ color: "rgba(255,255,255,.65)" }}>Create a client account to return to your planning workspace, or use a role demo to explore immediately.</p>
+            <div className="mt-10 space-y-3">
+              {ROLES.map(({ key, title, detail, icon: Icon }) => (
+                <button key={key} type="button" onClick={() => enter(key)} className="w-full rounded-md border p-3 text-left transition hover:border-white/60" style={{ borderColor: "rgba(255,255,255,.14)", color: "#fff" }}>
+                  <span className="flex items-center gap-2 text-xs font-semibold"><Icon size={15} style={{ color: C.lime }} /> {title}</span>
+                  <span className="mt-1 block pl-6 text-[11px] leading-snug" style={{ color: "rgba(255,255,255,.55)" }}>{detail}</span>
+                </button>
+              ))}
+            </div>
           </div>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em]" style={{ color: C.teal }}>NIRMAN AI</p>
-          <h1 className="mt-3 text-3xl font-semibold" style={{ color: C.navy, ...heading }}>Choose a demo workspace</h1>
-          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed" style={{ color: C.slateSoft }}>
-            No password is needed for this demonstration. You can switch roles any time from the navigation menu.
-          </p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          {ROLES.map(({ key, title, detail, icon: Icon }) => (
-            <button key={key} type="button" onClick={() => enter(key)} className="group min-h-52 rounded-md border p-6 text-left transition hover:-translate-y-0.5 hover:border-brand-500" style={{ background: C.card, borderColor: C.border }}>
-              <div className="flex h-10 w-10 items-center justify-center rounded-md" style={{ background: C.tealSoft, color: C.teal }}><Icon size={20} /></div>
-              <h2 className="mt-8 text-lg font-semibold" style={{ color: C.navy, ...heading }}>{title}</h2>
-              <p className="mt-2 text-sm leading-relaxed" style={{ color: C.slateSoft }}>{detail}</p>
-              <span className="mt-6 inline-flex items-center gap-2 text-xs font-semibold" style={{ color: C.teal }}>Enter workspace <ArrowRight size={14} /></span>
-            </button>
-          ))}
+          <div className="p-7 sm:p-10">
+            <div className="flex gap-5 border-b" style={{ borderColor: C.border }}>
+              {[['sign-in', 'Sign in'], ['register', 'Create account']].map(([key, label]) => (
+                <button key={key} type="button" onClick={() => { setMode(key); setError(""); }} className="border-b-2 pb-3 text-sm font-semibold" style={{ borderColor: mode === key ? C.teal : "transparent", color: mode === key ? C.navy : C.slateSoft }}>{label}</button>
+              ))}
+            </div>
+            <h2 className="mt-8 text-xl font-semibold" style={{ color: C.navy, ...heading }}>{mode === "register" ? "Create your client account" : "Welcome back"}</h2>
+            <p className="mt-2 text-sm" style={{ color: C.slateSoft }}>{mode === "register" ? "Your account opens the client planning workspace." : "Sign in with the email you registered."}</p>
+            <form className="mt-7 space-y-4" onSubmit={submit}>
+              {mode === "register" && <Field label="Name" value={form.name} onChange={(name) => setForm((old) => ({ ...old, name }))} placeholder="Your name" />}
+              <Field label="Email address" type="email" value={form.email} onChange={(email) => setForm((old) => ({ ...old, email }))} placeholder="you@example.com" />
+              <Field label="Password" type="password" value={form.password} onChange={(password) => setForm((old) => ({ ...old, password }))} placeholder="At least 8 characters" />
+              {error && <p className="rounded-md px-3 py-2 text-xs" style={{ color: C.red, background: C.redSoft }}>{error}</p>}
+              <button type="submit" disabled={busy} className="btn-press flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-semibold disabled:opacity-50" style={{ background: C.teal, color: "#fff" }}>{busy ? "Please wait" : mode === "register" ? "Create account" : "Sign in"} <ArrowRight size={15} /></button>
+            </form>
+          </div>
         </div>
       </section>
     </main>
   );
+}
+
+function Field({ label, value, onChange, type = "text", placeholder }) {
+  return <label className="block text-xs font-semibold" style={{ color: C.slate }}><span>{label}</span><input required type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="mt-1.5 w-full rounded-md border px-3 py-2.5 text-sm outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-100" style={{ borderColor: C.border, color: C.navy }} /></label>;
 }

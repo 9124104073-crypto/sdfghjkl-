@@ -6,9 +6,13 @@ The frontend calls them; it never implements decision logic itself.
 
 from __future__ import annotations
 
+import hashlib
+import hmac
+import os
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app import repositories as repo
@@ -30,6 +34,8 @@ from app.engines.weights import (
 from app.api.v1.advanced import router as advanced_router
 from app.providers.data import lineage, list_providers
 from app.schemas import (
+    AuthLoginRequest,
+    AuthRegisterRequest,
     CopilotRequest,
     CostRequest,
     DprRequest,
@@ -40,10 +46,56 @@ from app.schemas import (
     RecommendationRequest,
     WhatIfRequest,
 )
+from app.models.users import AppUser
 from app.services import copilot_service, dpr_service, iot_service, project_service, site_service
 from app.services.site_service import INFRASTRUCTURE_TYPES
 
 router = APIRouter(prefix="/api/v1")
+
+
+# -- accounts ------------------------------------------------------------
+
+auth_router = APIRouter(prefix="/auth", tags=["Accounts"])
+
+
+def _password_hash(password: str, salt: bytes | None = None) -> str:
+    salt = salt or os.urandom(16)
+    digest = hashlib.scrypt(password.encode("utf-8"), salt=salt, n=2**14, r=8, p=1)
+    return f"{salt.hex()}${digest.hex()}"
+
+
+def _verify_password(password: str, encoded: str) -> bool:
+    try:
+        salt_hex, expected = encoded.split("$", 1)
+        actual = _password_hash(password, bytes.fromhex(salt_hex)).split("$", 1)[1]
+        return hmac.compare_digest(actual, expected)
+    except (ValueError, TypeError):
+        return False
+
+
+def _account_payload(user: AppUser) -> dict[str, Any]:
+    return {"id": user.id, "name": user.name, "email": user.email, "role": user.role}
+
+
+@auth_router.post("/register", status_code=201, summary="Create a client account")
+def register_account(payload: AuthRegisterRequest, db: Session = Depends(get_db)) -> dict[str, Any]:
+    user = AppUser(name=payload.name.strip(), email=payload.email, password_hash=_password_hash(payload.password))
+    db.add(user)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="An account already exists for this email address.")
+    db.refresh(user)
+    return {"user": _account_payload(user)}
+
+
+@auth_router.post("/login", summary="Sign in to a client account")
+def login_account(payload: AuthLoginRequest, db: Session = Depends(get_db)) -> dict[str, Any]:
+    user = db.query(AppUser).filter(AppUser.email == payload.email).first()
+    if not user or not user.is_active or not _verify_password(payload.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Email or password is incorrect.")
+    return {"user": _account_payload(user)}
 
 
 # -- sites ---------------------------------------------------------------
@@ -535,6 +587,7 @@ def site_weights() -> Envelope:
 
 
 for _sub in (
+    auth_router,
     sites_router,
     priority_router,
     whatif_router,

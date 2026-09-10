@@ -35,6 +35,8 @@ export function describeError(error) {
 const api = {
   health: () => http.get("/health").then((r) => r.data),
   dashboard: () => http.get("/api/v1/dashboard").then((r) => r.data),
+  register: (body) => http.post("/api/v1/auth/register", body).then((r) => r.data),
+  login: (body) => http.post("/api/v1/auth/login", body).then((r) => r.data),
 
   sites: (params) => http.get("/api/v1/sites", { params }).then((r) => r.data),
   site: (id) => http.get(`/api/v1/sites/${id}`).then((r) => r.data),
