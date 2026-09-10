@@ -70,7 +70,7 @@ export default function CityScape3D({ sites = [], height = 560, onSelect, select
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
     mount.appendChild(renderer.domElement);
@@ -262,7 +262,6 @@ export default function CityScape3D({ sites = [], height = 560, onSelect, select
     let moved = false;
     let last = { x: 0, y: 0 };
     const el = renderer.domElement;
-    el.style.cursor = "grab";
 
     const pick = () => {
       raycaster.setFromCamera(pointer, camera);
@@ -293,11 +292,11 @@ export default function CityScape3D({ sites = [], height = 560, onSelect, select
       const hit = pick();
       const site = hit?.object.userData.site || null;
       setHovered(site ? { site, x: e.clientX - rect.left, y: e.clientY - rect.top } : null);
-      el.style.cursor = site ? "pointer" : "grab";
+      el.style.cursor = site ? "pointer" : "default";
     };
     const onUp = () => {
       dragging = false;
-      el.style.cursor = "grab";
+      el.style.cursor = "default";
     };
     const onClick = () => {
       if (moved) return; // a drag is not a selection

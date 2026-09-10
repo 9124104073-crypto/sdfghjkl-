@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
+import SitePreview3D from "./SitePreview3D";
 
 const CHENNAI_CENTER = [13.03, 80.22];
 
@@ -34,9 +35,13 @@ function ResponsiveMap() {
   useEffect(() => {
     const container = map.getContainer();
     let frame = 0;
+    let previous = "";
     const invalidate = () => {
+      const key = `${container.clientWidth}x${container.clientHeight}`;
+      if (!container.clientWidth || !container.clientHeight || key === previous) return;
+      previous = key;
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => map.invalidateSize({ animate: false }));
+      frame = requestAnimationFrame(() => map.invalidateSize({ animate: false, pan: false }));
     };
     const observer = new ResizeObserver(invalidate);
     observer.observe(container);
@@ -84,10 +89,20 @@ export default function MapView({
   focus,
   basemap = "streets",
 }) {
+  const [selectedId, setSelectedId] = useState(null);
   const plotted = useMemo(
     () => markers.filter((m) => Number.isFinite(m.latitude) && Number.isFinite(m.longitude)),
     [markers]
   );
+  const selectedMarker = plotted.find((marker) => marker.id === selectedId) || null;
+  const scoreText = selectedMarker?.rows?.find((row) => /score|overall/i.test(row.label))?.value;
+  const selectedScore = Number.parseFloat(String(scoreText ?? "").match(/[\d.]+/)?.[0] || "0");
+  const scoreWidth = Math.max(4, Math.min(100, selectedScore));
+
+  function selectMarker(marker) {
+    setSelectedId(marker.id);
+    onSelect?.(marker);
+  }
 
   // Carto's Positron keeps the data legible; OSM standard shows more context.
   const tiles =
@@ -119,25 +134,25 @@ export default function MapView({
         <FocusMarker focus={focus} />
 
         {plotted.map((marker) => {
-          const selected = Boolean(marker.selected);
+          const selected = marker.id === selectedId || Boolean(marker.selected);
           return (
             <CircleMarker
               key={marker.id}
               center={[marker.latitude, marker.longitude]}
               radius={marker.radius ?? 8}
               pathOptions={{
-                color: selected ? "#ffffff" : marker.color || "#0f766e",
-                fillColor: marker.color || "#0f766e",
-                fillOpacity: selected ? 0.95 : 0.66,
-                weight: selected ? 3 : 1.5,
+                color: selected ? "#4c1d95" : marker.color || "#0f766e",
+                fillColor: selected ? "#a855f7" : marker.color || "#0f766e",
+                fillOpacity: selected ? 1 : 0.66,
+                weight: selected ? 4 : 1.5,
               }}
               eventHandlers={{
-                ...(onSelect ? { click: () => onSelect(marker) } : {}),
-                mouseover: (e) => e.target.setStyle({ fillOpacity: 0.95, weight: 3 }),
+                click: () => selectMarker(marker),
+                mouseover: (e) => e.target.setStyle({ fillOpacity: 0.95, weight: selected ? 4 : 3 }),
                 mouseout: (e) =>
                   e.target.setStyle({
-                    fillOpacity: selected ? 0.95 : 0.66,
-                    weight: selected ? 3 : 1.5,
+                    fillOpacity: selected ? 1 : 0.66,
+                    weight: selected ? 4 : 1.5,
                   }),
               }}
             >
@@ -153,21 +168,29 @@ export default function MapView({
                       <span className="font-medium text-slate-900">{row.value}</span>
                     </p>
                   ))}
-                  {onSelect && (
-                    <button
-                      type="button"
-                      onClick={() => onSelect(marker)}
-                      className="nir-interactive mt-2 w-full rounded bg-brand-600 px-2 py-1 text-[11px] font-medium text-white"
-                    >
-                      Open details
-                    </button>
-                  )}
+                  <button type="button" onClick={() => selectMarker(marker)} className="nir-interactive mt-2 w-full rounded bg-brand-600 px-2 py-1 text-[11px] font-medium text-white">View location</button>
                 </div>
               </Popup>
             </CircleMarker>
           );
         })}
       </MapContainer>
+
+      {selectedMarker && (
+        <div className="absolute bottom-3 left-3 z-[450] w-60 overflow-hidden rounded-md border bg-white" style={{ borderColor: "#DDE6E0", boxShadow: "0 14px 30px -18px rgba(11,31,51,.45)" }}>
+          <SitePreview3D score={selectedScore} height={118} />
+          <div className="px-3 py-2.5">
+            <p className="truncate text-xs font-semibold text-slate-900">{selectedMarker.label}</p>
+            <p className="mt-0.5 text-[10px] text-slate-500">Selected location · street context</p>
+            {selectedScore > 0 && (
+              <div className="mt-2.5">
+                <div className="mb-1 flex items-center justify-between text-[10px] font-semibold text-slate-600"><span>Planning score</span><span className="tabular-nums text-slate-900">{selectedScore.toFixed(1)}/100</span></div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-violet-500" style={{ width: `${scoreWidth}%` }} /></div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {legend?.length > 0 && (
         <div className="pointer-events-none absolute bottom-3 right-3 z-[400] rounded-lg border border-slate-200 bg-white/92 px-3 py-2 text-[11px] shadow-sm backdrop-blur-sm">

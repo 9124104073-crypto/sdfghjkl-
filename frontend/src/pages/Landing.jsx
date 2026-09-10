@@ -15,7 +15,6 @@ import { C, body, heading } from "../theme";
 import { Panel } from "../components/widgets";
 import { AnimatedNumber } from "../components/motion";
 import { useApi } from "../components/ui";
-import { Ticker } from "../components/Ticker";
 
 const STAGES = [
   { name: "Data", detail: "Twelve registered datasets with full provenance" },
@@ -54,34 +53,16 @@ export default function Landing() {
   const { data } = useApi(() => api.dashboard(), []);
   const m = data?.metrics;
 
-  const tickerItems = m
-    ? [
-        { label: "Sites assessed", value: m.sites_assessed },
-        { label: "Projects tracked", value: m.projects },
-        { label: "Indicative outlay", value: m.total_budget_cr, unit: " ₹cr" },
-        { label: "High-risk localities", value: m.high_risk_areas, tone: C.red },
-        { label: "MCDA factors", value: 9 },
-        { label: "Registered datasets", value: 12 },
-        { label: "Projection horizon", value: 2045 },
-        { label: "Scoring", value: "deterministic" },
-        { label: "Every figure carries its source" },
-      ]
-    : [];
-
-
   return (
     <div style={{ background: C.bg, ...body }} className="min-h-screen w-full">
       {/* Hero */}
-      <section className="relative overflow-hidden" style={{ background: C.navy }}>
-        <svg className="absolute inset-0 h-full w-full opacity-40" viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M0,30 C 20,20 35,42 55,28 C 70,18 85,32 100,22" stroke={C.teal} strokeWidth="0.4" fill="none" />
-          <path d="M0,45 C 22,50 40,35 58,44 C 75,52 88,40 100,46" stroke="rgba(255,255,255,0.15)" strokeWidth="0.3" fill="none" />
-          {[[15, 18], [34, 30], [55, 20], [70, 38], [88, 26], [22, 44]].map((p, i) => (
-            <circle key={i} cx={p[0]} cy={p[1]} r="0.8" fill={C.lime} opacity="0.8" />
-          ))}
-        </svg>
-
-        <div className="relative mx-auto max-w-6xl px-6 pb-24 pt-20 lg:px-10">
+      <section className="landing-hero relative overflow-hidden" style={{ background: C.navy }}>
+        <div className="landing-grid" aria-hidden="true" />
+        <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-6 lg:px-10">
+          <nav className="mb-20 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-semibold text-white" style={heading}><span className="flex h-7 w-7 items-center justify-center rounded-sm" style={{ background: C.lime, color: C.navy }}>N</span> NIRMAN AI</div>
+            <button type="button" onClick={() => navigate("/login")} className="text-xs font-semibold text-white/75 transition hover:text-white">Sign in</button>
+          </nav>
           <div
             className="mb-6 inline-flex items-center gap-2 rounded-md px-3 py-1 text-xs"
             style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.75)" }}
@@ -89,12 +70,11 @@ export default function Landing() {
             <CircleDot size={12} style={{ color: C.lime }} /> Infrastructure decision intelligence · Chennai
           </div>
 
-          <h1 className="max-w-3xl text-4xl font-semibold leading-[1.06] text-white sm:text-6xl" style={heading}>
-            AI-powered infrastructure planning, grounded in real data.
+          <h1 className="max-w-4xl text-4xl font-semibold leading-[1.06] text-white sm:text-6xl" style={heading}>
+            Make the next infrastructure decision easier to trust.
           </h1>
           <p className="mt-6 max-w-xl text-lg" style={{ color: "rgba(255,255,255,0.65)" }}>
-            NIRMAN AI turns fragmented public data into defensible siting decisions — where to build,
-            why there, what it risks, what it costs, and which scheme could fund it.
+            Move from a place on the map to a defensible plan: see the context, compare options, understand the trade-offs, and act with confidence.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
@@ -116,9 +96,8 @@ export default function Landing() {
             </button>
           </div>
 
-          {/* Live portfolio figures, not stock copy */}
           {m && (
-            <div className="mt-14 grid max-w-3xl grid-cols-2 gap-x-10 gap-y-6 sm:grid-cols-4">
+            <div className="mt-14 grid max-w-3xl grid-cols-2 gap-x-8 gap-y-5 border-t pt-6 sm:grid-cols-4" style={{ borderColor: "rgba(255,255,255,.16)" }}>
               {[
                 ["Sites assessed", m.sites_assessed, null],
                 ["Projects", m.projects, null],
@@ -139,13 +118,6 @@ export default function Landing() {
           )}
         </div>
       </section>
-
-      {/* Live figures ticker */}
-      {tickerItems.length > 0 && (
-        <div style={{ background: C.navy2, borderTop: `1px solid rgba(255,255,255,0.08)` }}>
-          <Ticker items={tickerItems} speed={55} className="py-3" tone="navy" />
-        </div>
-      )}
 
       {/* Pipeline */}
       <section className="mx-auto max-w-6xl px-6 py-20 lg:px-10">

@@ -59,7 +59,7 @@ export function useThreeScene(
     renderer.toneMappingExposure = 1.15;
     if (shadows) {
       renderer.shadowMap.enabled = true;
-      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.shadowMap.type = THREE.PCFShadowMap;
     }
     mount.appendChild(renderer.domElement);
     renderer.domElement.style.display = "block";

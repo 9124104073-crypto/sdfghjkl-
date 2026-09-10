@@ -28,6 +28,10 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
+body, button, input { cursor: default; }
+button, a, [role="button"] { cursor: pointer; }
+input { cursor: text; }
+
 /* Leaflet sits under sticky headers and dropdowns without this. */
 .leaflet-container {
   z-index: 0;
@@ -145,6 +149,35 @@ html { scroll-behavior: smooth; }
 .leaflet-control-zoom a:hover { background: #f0fdfa !important; }
 .leaflet-popup-content-wrapper { border-radius: 10px; box-shadow: 0 12px 30px -12px rgba(15,40,52,.35); }
 .leaflet-popup-content { margin: 11px 13px; }
+
+.landing-hero { min-height: 610px; }
+.landing-grid { position: absolute; inset: 0; opacity: .34; background-image: linear-gradient(rgba(163,230,53,.15) 1px, transparent 1px), linear-gradient(90deg, rgba(163,230,53,.15) 1px, transparent 1px); background-size: 52px 52px; mask-image: linear-gradient(90deg, black, transparent 82%); animation: nir-grid-shift 18s linear infinite; }
+@keyframes nir-grid-shift { to { background-position: 52px 52px; } }
+
+/* Account entry is one responsive surface, never two colliding panels. */
+.auth-page { min-height: 100vh; padding: 32px 20px; display: grid; place-items: center; }
+.auth-shell { width: min(100%, 980px); }
+.auth-back { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 12px; font-weight: 700; }
+.auth-card { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(360px, .98fr); overflow: hidden; border: 1px solid; border-radius: 8px; min-height: 570px; }
+.auth-aside { padding: 42px; display: flex; flex-direction: column; }
+.auth-kicker { margin-top: 56px; font-size: 11px; font-weight: 800; letter-spacing: .12em; }
+.auth-title { max-width: 410px; margin-top: 12px; font-size: 34px; line-height: 1.12; font-weight: 700; }
+.auth-copy { max-width: 390px; margin-top: 16px; font-size: 14px; line-height: 1.65; }
+.auth-demo-list { margin-top: auto; display: grid; gap: 10px; padding-top: 32px; }
+.auth-form-area { display: flex; flex-direction: column; justify-content: center; padding: 42px; }
+.auth-tabs { display: flex; gap: 22px; border-bottom: 1px solid; }
+.auth-form-title { margin-top: 34px; font-size: 24px; font-weight: 700; }
+.auth-form-copy { margin-top: 8px; font-size: 14px; line-height: 1.55; }
+.auth-form { margin-top: 30px; display: grid; gap: 16px; }
+
+@media (max-width: 760px) {
+  .auth-page { display: block; padding: 20px 16px; }
+  .auth-card { grid-template-columns: 1fr; min-height: 0; }
+  .auth-aside, .auth-form-area { padding: 28px 24px; }
+  .auth-kicker { margin-top: 34px; }
+  .auth-title { font-size: 28px; }
+  .auth-demo-list { margin-top: 28px; }
+}
 
 /* One override to rule them all. */
 @media (prefers-reduced-motion: reduce) {
