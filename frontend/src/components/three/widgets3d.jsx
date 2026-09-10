@@ -94,7 +94,7 @@ export function Gauge3D({ score = 0, label, sub, height = 200, tone }) {
   const offset = circumference * (1 - safeScore / 100);
 
   return (
-    <div className="relative flex w-full items-center justify-center" style={{ height }}>
+    <div className="relative flex h-full w-full min-w-0 items-center justify-center overflow-hidden rounded-md" style={{ height }}>
       <svg width={size} height={size} viewBox="0 0 100 100" role="img" aria-label={`${label || "Score"}: ${safeScore} out of 100`}>
         <defs>
           <linearGradient id={`score-${colour.replace("#", "")}`} x1="0" x2="1" y1="0" y2="1">
@@ -169,13 +169,15 @@ export function RiskShell3D({ score = 0, height = 220, label = "composite risk" 
 
   const { mountRef } = useThreeScene(
     ({ scene, camera, THREE, track, reduced }) => {
-      camera.position.set(0, 0.2, 3.5);
+      // This widget commonly sits beside the score ring in a narrow two-up
+      // layout. Keep the full shell in frame rather than filling the canvas.
+      camera.position.set(0, 0.12, 4.7);
       camera.lookAt(0, 0, 0);
 
       addStudioLights(scene, THREE, { shadow: false });
 
       const core = new THREE.Mesh(
-        track(new THREE.IcosahedronGeometry(0.7, 4)),
+        track(new THREE.IcosahedronGeometry(0.58, 3)),
         track(
           new THREE.MeshPhysicalMaterial({
             color: colour,
@@ -194,7 +196,7 @@ export function RiskShell3D({ score = 0, height = 220, label = "composite risk" 
       // A glass shell over the core: transmission is what makes it read as a
       // physical enclosure rather than a wireframe overlay.
       const glass = new THREE.Mesh(
-        track(new THREE.IcosahedronGeometry(1.12, 5)),
+        track(new THREE.IcosahedronGeometry(0.9, 3)),
         track(
           new THREE.MeshPhysicalMaterial({
             color: 0xffffff,
@@ -215,7 +217,7 @@ export function RiskShell3D({ score = 0, height = 220, label = "composite risk" 
       // one looks caged in.
       const detail = score >= 65 ? 3 : score >= 40 ? 2 : 1;
       const cage = new THREE.LineSegments(
-        track(new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(1.16, detail))),
+        track(new THREE.WireframeGeometry(new THREE.IcosahedronGeometry(0.96, detail))),
         track(new THREE.LineBasicMaterial({ color: colour, transparent: true, opacity: 0.55 }))
       );
       scene.add(cage);
@@ -239,7 +241,10 @@ export function RiskShell3D({ score = 0, height = 220, label = "composite risk" 
   );
 
   return (
-    <div className="relative" style={{ height }}>
+    <div
+      className="relative mx-auto h-full w-full min-w-0 max-w-[176px] overflow-hidden rounded-md"
+      style={{ height: Math.min(height, 176), background: "#F8FBF9" }}
+    >
       <div ref={mountRef} className="h-full w-full" />
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         <span

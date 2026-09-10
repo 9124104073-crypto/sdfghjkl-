@@ -413,9 +413,13 @@ export default function Recommendation() {
             {selected && (
               <Card index={3} title="Site profile" subtitle={selected.site.site_code}>
                 {/* Score and risk as paired 3D readouts before the detail. */}
-                <div className="mb-4 grid grid-cols-2 gap-2">
-                  <Gauge3D score={selected.score} label="suitability" height={175} />
-                  <RiskShell3D score={selected.risk.overall_score} height={175} label="risk" />
+                <div className="mb-4 grid grid-cols-2 gap-3">
+                  <div className="min-w-0 overflow-hidden rounded-md border border-slate-100 bg-white">
+                    <Gauge3D score={selected.score} label="suitability" height={175} />
+                  </div>
+                  <div className="min-w-0 overflow-hidden rounded-md border border-slate-100 bg-[#F8FBF9]">
+                    <RiskShell3D score={selected.risk.overall_score} height={175} label="risk" />
+                  </div>
                 </div>
 
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
