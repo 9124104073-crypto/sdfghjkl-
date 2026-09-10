@@ -25,31 +25,26 @@ export const TIER_COLORS = {
 /**
  * Leaflet needs telling when its container changes size.
  *
- * Without this the map keeps the dimensions it had at mount: open a panel,
- * resize the window or reveal a hidden tab and Leaflet renders only the tiles
- * that fitted the original box, leaving grey gutters. A ResizeObserver is the
- * reliable fix — window resize events alone miss layout-driven changes.
+ * Without this the map can keep the dimensions it had at mount. Do not watch
+ * Leaflet's own container: invalidating Leaflet from that observer changes the
+ * container again and can create an endless ResizeObserver loop on the Risk
+ * page. A first-paint pass plus debounced browser resizing covers the layouts
+ * this app uses without feeding back into Leaflet.
  */
 function ResponsiveMap() {
   const map = useMap();
   useEffect(() => {
-    const container = map.getContainer();
-    let frame = 0;
-    let previous = "";
+    let frame = requestAnimationFrame(() => map.invalidateSize({ animate: false, pan: false }));
+    let timer = 0;
     const invalidate = () => {
-      const key = `${container.clientWidth}x${container.clientHeight}`;
-      if (!container.clientWidth || !container.clientHeight || key === previous) return;
-      previous = key;
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => map.invalidateSize({ animate: false, pan: false }));
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => map.invalidateSize({ animate: false, pan: false }), 120);
     };
-    const observer = new ResizeObserver(invalidate);
-    observer.observe(container);
-    // Also catch the first paint, when the container may still be settling.
-    invalidate();
+    window.addEventListener("resize", invalidate);
     return () => {
-      observer.disconnect();
       cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", invalidate);
     };
   }, [map]);
   return null;
