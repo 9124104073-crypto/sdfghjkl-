@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import logging
 import os
 from typing import Any
 
@@ -47,10 +48,11 @@ from app.schemas import (
     WhatIfRequest,
 )
 from app.models.users import AppUser
-from app.services import copilot_service, dpr_service, iot_service, project_service, site_service
+from app.services import copilot_service, dpr_service, iot_service, project_service, site_service, supabase_service
 from app.services.site_service import INFRASTRUCTURE_TYPES
 
 router = APIRouter(prefix="/api/v1")
+log = logging.getLogger(__name__)
 
 
 # -- accounts ------------------------------------------------------------
@@ -79,6 +81,21 @@ def _account_payload(user: AppUser) -> dict[str, Any]:
 
 @auth_router.post("/register", status_code=201, summary="Create a client account")
 def register_account(payload: AuthRegisterRequest, db: Session = Depends(get_db)) -> dict[str, Any]:
+    if settings.supabase_auth_enabled:
+        try:
+            supabase_service.sign_up(payload.email, payload.password, payload.name.strip())
+        except supabase_service.SupabaseError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        user = db.query(AppUser).filter(AppUser.email == payload.email).first()
+        if not user:
+            # Password validation is owned by Supabase Auth in this mode. The
+            # local row is a profile/role record in the same Supabase Postgres
+            # database, never a second password authority.
+            user = AppUser(name=payload.name.strip(), email=payload.email, password_hash="supabase-managed")
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        return {"user": _account_payload(user), "verification_required": True}
     user = AppUser(name=payload.name.strip(), email=payload.email, password_hash=_password_hash(payload.password))
     db.add(user)
     try:
@@ -92,6 +109,24 @@ def register_account(payload: AuthRegisterRequest, db: Session = Depends(get_db)
 
 @auth_router.post("/login", summary="Sign in to a client account")
 def login_account(payload: AuthLoginRequest, db: Session = Depends(get_db)) -> dict[str, Any]:
+    if settings.supabase_auth_enabled:
+        try:
+            identity = supabase_service.sign_in(payload.email, payload.password)
+        except supabase_service.SupabaseError as exc:
+            raise HTTPException(status_code=401, detail=str(exc)) from exc
+        user = db.query(AppUser).filter(AppUser.email == payload.email).first()
+        if not user:
+            user = AppUser(
+                name=(identity.get("user_metadata") or {}).get("name") or payload.email.split("@", 1)[0],
+                email=payload.email,
+                password_hash="supabase-managed",
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        if not user.is_active:
+            raise HTTPException(status_code=401, detail="This account is disabled.")
+        return {"user": _account_payload(user)}
     user = db.query(AppUser).filter(AppUser.email == payload.email).first()
     if not user or not user.is_active or not _verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Email or password is incorrect.")
@@ -379,6 +414,12 @@ def download_dpr(project_id: int, db: Session = Depends(get_db)) -> Response:
         raise HTTPException(status_code=404, detail=f"Project {project_id} not found.")
     pdf = dpr_service.render_pdf(result)
     filename = f"NIRMAN_AI_DPR_{result['project']['project_code']}.pdf"
+    try:
+        supabase_service.upload_bytes(f"dpr/{filename}", pdf, "application/pdf")
+    except supabase_service.SupabaseError as exc:
+        # File delivery must remain available even if optional cloud archival
+        # has a transient issue; the audit log still records the generated DPR.
+        log.warning("Could not archive DPR in Supabase Storage: %s", exc)
     return Response(
         content=pdf,
         media_type="application/pdf",

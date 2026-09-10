@@ -44,6 +44,14 @@ async def lifespan(app: FastAPI):
                     log.info("Seed verification: %s", counts)
                 except Exception as exc:
                     log.error("Seeding failed: %s", exc)
+        if settings.supabase_storage_enabled:
+            try:
+                from app.services import supabase_service
+
+                count = supabase_service.sync_seed_files(settings.seed_dir)
+                log.info("Supabase Storage seed sync: %s files", count)
+            except Exception as exc:
+                log.warning("Supabase Storage seed sync failed: %s", exc)
 
     # Optional MQTT ingestion. Never blocks startup and never raises.
     from app.services.mqtt_service import ingestor

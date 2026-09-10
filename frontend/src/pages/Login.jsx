@@ -17,6 +17,7 @@ export default function Login() {
   const [mode, setMode] = useState("sign-in");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const destination = location.state?.from?.pathname || "/dashboard";
 
@@ -29,8 +30,14 @@ export default function Login() {
     event.preventDefault();
     setBusy(true);
     setError("");
+    setNotice("");
     try {
       const response = mode === "register" ? await api.register(form) : await api.login(form);
+      if (response.verification_required) {
+        setMode("sign-in");
+        setNotice("Check your email and confirm your account, then sign in.");
+        return;
+      }
       signIn(response.user);
       navigate(destination, { replace: true });
     } catch (err) {
@@ -72,6 +79,7 @@ export default function Login() {
               <Field label="Email address" type="email" value={form.email} onChange={(email) => setForm((old) => ({ ...old, email }))} placeholder="you@example.com" />
               <Field label="Password" type="password" value={form.password} onChange={(password) => setForm((old) => ({ ...old, password }))} placeholder="At least 8 characters" />
               {error && <p className="rounded-md px-3 py-2 text-xs" style={{ color: C.red, background: C.redSoft }}>{error}</p>}
+              {notice && <p className="rounded-md px-3 py-2 text-xs" style={{ color: C.teal, background: C.tealSoft }}>{notice}</p>}
               <button type="submit" disabled={busy} className="btn-press flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-semibold disabled:opacity-50" style={{ background: C.teal, color: "#fff" }}>{busy ? "Please wait" : mode === "register" ? "Create account" : "Sign in"} <ArrowRight size={15} /></button>
             </form>
           </div>

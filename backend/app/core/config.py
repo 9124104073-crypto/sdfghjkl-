@@ -35,6 +35,15 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     jwt_secret: str = "change-me-in-production"
 
+    # Supabase is optional locally. When configured, its Postgres instance is
+    # the application database, Auth owns verified accounts, and Storage holds
+    # imported source files plus generated artifacts such as DPR PDFs.
+    supabase_url: str | None = None
+    supabase_anon_key: str | None = None
+    supabase_service_role_key: str | None = None
+    supabase_storage_bucket: str = "nirman-files"
+    supabase_redirect_url: str | None = None
+
     # Decision-support posture
     demo_mode: bool = True
     auto_seed: bool = True
@@ -73,6 +82,14 @@ class Settings(BaseSettings):
     @property
     def is_postgres(self) -> bool:
         return self.database_url.startswith("postgres")
+
+    @property
+    def supabase_auth_enabled(self) -> bool:
+        return bool(self.supabase_url and self.supabase_anon_key)
+
+    @property
+    def supabase_storage_enabled(self) -> bool:
+        return bool(self.supabase_url and self.supabase_service_role_key)
 
     @property
     def seed_dir(self) -> Path:
