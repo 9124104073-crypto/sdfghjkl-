@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CircleMarker, MapContainer, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
+import { CircleMarker, MapContainer, Polygon, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
 import SitePreview3D from "./SitePreview3D";
 
 const CHENNAI_CENTER = [13.03, 80.22];
@@ -83,6 +83,7 @@ export default function MapView({
   legend,
   focus,
   basemap = "streets",
+  polygons = [],
 }) {
   const [selectedId, setSelectedId] = useState(null);
   const plotted = useMemo(
@@ -127,6 +128,22 @@ export default function MapView({
         <TileLayer attribution={tiles.attribution} url={tiles.url} detectRetina keepBuffer={3} />
         <ResponsiveMap />
         <FocusMarker focus={focus} />
+
+        {polygons.map((polygon) => (
+          <Polygon
+            key={polygon.id}
+            positions={polygon.positions}
+            pathOptions={{
+              color: polygon.color || "#2563eb",
+              fillColor: polygon.fillColor || polygon.color || "#2563eb",
+              fillOpacity: polygon.fillOpacity ?? 0.18,
+              weight: polygon.weight ?? 2,
+              dashArray: polygon.dashArray || "6 5",
+            }}
+          >
+            {polygon.label && <Tooltip sticky>{polygon.label}</Tooltip>}
+          </Polygon>
+        ))}
 
         {plotted.map((marker) => {
           const selected = marker.id === selectedId || Boolean(marker.selected);

@@ -10,7 +10,9 @@ import {
 } from "recharts";
 import { useSearchParams } from "react-router-dom";
 import api from "../api/client";
-import MapView, { TIER_COLORS } from "../components/MapView";
+import ClimateToggle from "../components/ClimateToggle";
+import MapVisualization, { CLIMATE_FLOOD_ZONE } from "../components/MapVisualization";
+import ReportGenerator from "../components/ReportGenerator";
 import { Gauge3D, RiskShell3D } from "../components/three/widgets3d";
 import {
   AsyncPanel,
@@ -38,6 +40,31 @@ const METHODS = {
   },
 };
 
+function pointInPolygon(latitude, longitude, polygon) {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [latA, lngA] = polygon[i];
+    const [latB, lngB] = polygon[j];
+    const crosses = (lngA > longitude) !== (lngB > longitude);
+    if (crosses && latitude < ((latB - latA) * (longitude - lngA)) / (lngB - lngA) + latA) inside = !inside;
+  }
+  return inside;
+}
+
+function applyClimateScenario(site, active) {
+  if (!active || !pointInPolygon(site.site.latitude, site.site.longitude, CLIMATE_FLOOD_ZONE)) return site;
+  const flood = site.factors?.find((factor) => /flood/i.test(factor.name) || /flood/i.test(factor.label));
+  const impact = (Number(flood?.normalized) || 0) * (Number(flood?.weight_pct) || 15) / 100 * 0.3;
+  const score = Math.max(0, Number((site.score - impact).toFixed(1)));
+  return {
+    ...site,
+    score,
+    climateAffected: true,
+    risk: { ...site.risk, overall_level: site.risk?.overall_level === "Low" ? "Medium" : site.risk?.overall_level },
+    aiExplanation: `2050 climate scenario: projected flood exposure reduces flood safety by 30%. ${site.site_name} now scores ${score}/100 under this scenario.`,
+  };
+}
+
 export default function Recommendation() {
   const [params, setParams] = useSearchParams();
   const [infrastructureType, setInfrastructureType] = useState("Hospital");
@@ -47,6 +74,7 @@ export default function Recommendation() {
     params.get("site") ? Number(params.get("site")) : null
   );
   const [method, setMethod] = useState("mcda");
+  const [climateActive, setClimateActive] = useState(false);
 
   const { data: typesEnvelope } = useApi(() => api.infrastructureTypes(), []);
   const types = typesEnvelope?.data || ["Hospital"];
@@ -61,7 +89,8 @@ export default function Recommendation() {
     [infrastructureType, limit, maxFloodRisk]
   );
 
-  const results = data?.results || [];
+  const baseResults = data?.results || [];
+  const results = useMemo(() => baseResults.map((site) => applyClimateScenario(site, climateActive)), [baseResults, climateActive]);
 
   // Radar over the nine factors for the leading candidates — the shape of a
   // site's profile compares faster than nine separate numbers.
@@ -172,6 +201,8 @@ export default function Recommendation() {
         </div>
       </Card>
 
+      <ClimateToggle active={climateActive} onChange={setClimateActive} />
+
       <AsyncPanel
         loading={loading}
         error={error}
@@ -183,31 +214,27 @@ export default function Recommendation() {
           <Card index={1}
             title={`Top ${results.length} sites`}
             subtitle={`for a ${infrastructureType.toLowerCase()}`}
-            className="lg:col-span-3"
+            className="lg:col-span-5"
             actions={<DataStatusBadge status="derived" />}
           >
-            <MapView
-              height="320px"
-              markers={results.map((r) => ({
+            <MapVisualization
+              climateActive={climateActive}
+              selectedId={selected?.site_id}
+              onSelect={(marker) => setSelectedId(marker.id)}
+              sites={results.map((r) => ({
                 id: r.site_id,
+                name: r.site_name,
                 latitude: r.site.latitude,
                 longitude: r.site.longitude,
-                label: r.site_name,
-                color: TIER_COLORS[r.recommendation] || "#0f766e",
-                radius: r.site_id === selected?.site_id ? 12 : 8,
-                rows: [
-                  { label: "Score", value: r.score.toFixed(1) },
-                  { label: "Confidence", value: `${r.confidence}%` },
-                  { label: "Flood risk", value: r.site.flood_risk },
-                ],
+                score: r.score,
+                risk: r.risk?.overall_level || r.site.flood_risk,
+                aiExplanation: r.aiExplanation || `Suitability is driven by population coverage, access, and flood safety. Current recommendation: ${r.recommendation}.`,
               }))}
-              onSelect={(m) => setSelectedId(m.id)}
-              legend={Object.entries(TIER_COLORS)
-                .filter(([k]) =>
-                  ["Recommended", "Consider", "Further Assessment Required", "Not Recommended"].includes(k)
-                )
-                .map(([label, color]) => ({ label, color }))}
             />
+
+            <div className="border-b border-slate-100 py-5">
+              <ReportGenerator site={selected} climateActive={climateActive} />
+            </div>
 
             {radarData.length > 0 && (
           <div className="mt-5 border-t border-slate-100 pt-4">
