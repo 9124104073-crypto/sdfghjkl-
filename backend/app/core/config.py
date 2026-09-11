@@ -15,6 +15,13 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 REPO_ROOT = BACKEND_DIR.parent
 SEED_DIR = REPO_ROOT / "database" / "seed"
+if not SEED_DIR.is_dir():
+    # allinone.Dockerfile copies backend/app -> /app and database -> /app/database,
+    # flattening one directory level relative to the local repo layout. Fall back
+    # to database/ living beside the app code instead of two levels above it.
+    _DOCKER_SEED_DIR = BACKEND_DIR / "database" / "seed"
+    if _DOCKER_SEED_DIR.is_dir():
+        SEED_DIR = _DOCKER_SEED_DIR
 
 
 class Settings(BaseSettings):
